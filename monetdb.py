@@ -3,6 +3,7 @@
 import os
 import sys
 import time
+import subprocess
 
 MONETDB_MAIN_VERSION='Mar2018'
 MONETDB_VERSION = '11.29.3'

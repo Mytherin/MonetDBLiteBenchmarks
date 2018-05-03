@@ -12,18 +12,19 @@ CMAKEDIR = os.path.join(CURRENTDIR, "mariadb-${VERSION}".replace("${VERSION}", M
 INSTALLDIR = os.path.join(CURRENTDIR, 'mariadb-build-${VERSION}'.replace('${VERSION}', MARIADB_VERSION))
 CONFIGURATION_PARAMETERS = ''#'--with-blocksize=1 --with-segsize=1'
 
-USER='mysql'
-PASSWORD='my_password'
+USER='root'
 PORT = '3306'
 SOCKET = '/tmp/mysql.sock'
+DBNAME = 'test'
 
 FNULL = open(os.devnull, 'w')
 
 optimal_configuration = {
 	'client': {
-		'password': 'my_password',
+		'user': USER,
 		'port': PORT,
-		'socket': SOCKET
+		'socket': SOCKET,
+		'database': DBNAME
 	},
 	'mysqld': {
 		'port': PORT,
@@ -86,13 +87,11 @@ def init_db(SILENT=True):
 
 def execute_query(query, SILENT=True):
 	pipe = ">/dev/null 2>/dev/null" if SILENT else ""
-	if os.system('${BUILD_DIR}/usr/local/mysql/bin/mysql -e "${QUERY}" ${PIPE}'.replace("${BUILD_DIR}", INSTALLDIR).replace("${QUERY}", query).replace("${PIPE}", pipe)):
+	if os.system('${BUILD_DIR}/usr/local/mysql/bin/mysql --batch -e "${QUERY}" ${PIPE}'.replace("${BUILD_DIR}", INSTALLDIR).replace("${QUERY}", query).replace("${PIPE}", pipe)):
 		raise Exception("Failed to execute query \"${QUERY}\"".replace("${QUERY}", query))
 
 def execute_file(fpath, SILENT=True):
-	pipe = ">/dev/null 2>/dev/null" if SILENT else ""
-	if os.system('${BUILD_DIR}/usr/local/mysql/bin/mysql ${FILE} ${PIPE}'.replace("${BUILD_DIR}", INSTALLDIR).replace("${FILE}", fpath).replace("${PIPE}", pipe)):
-		raise Exception("Failed to execute file \"${FILE}\"".replace("${FILE}", fpath))
+	execute_query('source ' + fpath, SILENT)
 
 def start_database(SILENT=True):
 	process_path = ["${BUILD_DIR}/usr/local/mysql/bin/mysqld".replace("${BUILD_DIR}", INSTALLDIR)]

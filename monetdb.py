@@ -14,8 +14,8 @@ INSTALLDIR = os.path.join(CURRENTDIR, 'monetdb-build-${VERSION}'.replace('${VERS
 FNULL = open(os.devnull, 'w')
 
 optimal_configuration = {
-	'user'='monetdb',
-	'password'='monetdb'
+	'user':'monetdb',
+	'password':'monetdb'
 }
 
 def install(SILENT=True):
@@ -126,4 +126,4 @@ def set_configuration(dict):
 	if not os.path.isfile(dotmonetdb):
 		with open(dotmonetdb, 'w+') as f:
 			for entry in dict.keys():
-				f.write('${PROPERTY} = ${VALUE}\n'.replace('${PROPERTY}', str(entry)).replace('${VALUE}', dict[entry]))
+				f.write('${PROPERTY}=${VALUE}\n'.replace('${PROPERTY}', str(entry)).replace('${VALUE}', dict[entry]))

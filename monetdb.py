@@ -11,6 +11,13 @@ CURRENTDIR = os.getcwd()
 PGDATA=os.path.join(CURRENTDIR, 'pgdata')
 INSTALLDIR = os.path.join(CURRENTDIR, 'monetdb-build-${VERSION}'.replace('${VERSION}', MONETDB_VERSION))
 
+FNULL = open(os.devnull, 'w')
+
+optimal_configuration = {
+	'user'='monetdb',
+	'password'='monetdb'
+}
+
 def install(SILENT=True):
 	pipe = ">/dev/null 2>/dev/null" if SILENT else ""
 	print("[MONETDB] Installing database")
@@ -45,7 +52,7 @@ def cleanup_install():
 	os.system('rm -r ${BUILD_DIR}'.replace("${BUILD_DIR}", INSTALLDIR))
 
 def init_db(SILENT=True):
-	pass
+	set_configuration(optimal_configuration)
 
 def execute_query(query, SILENT=True):
 	pipe = ">/dev/null 2>/dev/null" if SILENT else ""
@@ -115,9 +122,8 @@ def benchmark_query(fpath, NRUNS):
 
 
 def set_configuration(dict):
-	pass
-	# os.system('cp ${BUILD_DIR}/share/postgresql.conf.sample ${DBDIR}/postgresql.conf'.replace("${BUILD_DIR}", INSTALLDIR).replace("${DBDIR}", PGDATA))
-	# with open('${DBDIR}/postgresql.conf'.replace("${DBDIR}", PGDATA), 'a') as f:
-	# 	for entry in dict.keys():
-	# 		f.write('${PROPERTY} = ${VALUE}\n'.replace('${PROPERTY}', str(entry)).replace('${VALUE}', dict[entry]))
-
+	dotmonetdb = os.path.join(os.environ['HOME'], '.monetdb')
+	if not os.path.isfile(dotmonetdb):
+		with open(dotmonetdb, 'w+') as f:
+			for entry in dict.keys():
+				f.write('${PROPERTY} = ${VALUE}\n'.replace('${PROPERTY}', str(entry)).replace('${VALUE}', dict[entry]))

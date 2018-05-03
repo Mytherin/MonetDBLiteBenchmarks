@@ -42,7 +42,7 @@ optimal_configuration = {
 		'set-variable': 'key_buffer=128M'
 	}
 }
-# make install DESTDIR="/some/absolute/path"
+
 def install(SILENT=True):
 	pipe = ">/dev/null 2>/dev/null" if SILENT else ""
 	print("[MARIADB] Installing database")
@@ -56,7 +56,6 @@ def install(SILENT=True):
 	print("[MARIADB] Configuring")
 	os.system('mkdir -p ${CMAKEDIR}'.replace("${CMAKEDIR}", CMAKEDIR))
 	os.chdir(CMAKEDIR)
-	#os.system('rm postgresql-${VERSION}.tar.gz'.replace("${VERSION}", POSTGRES_VERSION))
 	if os.system('cmake -G "Unix Makefiles" .. ${PIPE}'.replace("${VERSION}", MARIADB_VERSION).replace("${PIPE}", pipe)):
 		raise Exception("Failed CMake")
 	print("[MARIADB] Compiling")
@@ -76,24 +75,31 @@ def cleanup_install():
 	os.system('rm -r mariadb-${VERSION}'.replace("${VERSION}", MARIADB_VERSION))
 	os.system('rm -r ${BUILD_DIR}'.replace("${BUILD_DIR}", INSTALLDIR))
 
-def init_db():
+def init_db(SILENT=True):
+	pipe = ">/dev/null 2>/dev/null" if SILENT else ""
 	CURRENTDIR = os.getcwd()
 	os.system('mkdir -p ${DBDIR}'.replace("${DBDIR}", PGDATA))
 	set_configuration(optimal_configuration)
 	os.chdir('${BUILD_DIR}/usr/local/mysql'.replace("${BUILD_DIR}", INSTALLDIR))
-	os.system('scripts/mysql_install_db')
+	os.system('scripts/mysql_install_db ${PIPE}'.replace("${PIPE}", pipe))
 	os.chdir(CURRENTDIR)
 
-def execute_query(query):
-	if os.system('${BUILD_DIR}/usr/local/mysql/bin/mysql -e "${QUERY}" >/dev/null 2>/dev/null'.replace("${BUILD_DIR}", INSTALLDIR).replace("${QUERY}", query)):
+def execute_query(query, SILENT=True):
+	pipe = ">/dev/null 2>/dev/null" if SILENT else ""
+	if os.system('${BUILD_DIR}/usr/local/mysql/bin/mysql -e "${QUERY}" ${PIPE}'.replace("${BUILD_DIR}", INSTALLDIR).replace("${QUERY}", query).replace("${PIPE}", pipe)):
 		raise Exception("Failed to execute query \"${QUERY}\"".replace("${QUERY}", query))
 
-def execute_file(fpath):
-	if os.system('${BUILD_DIR}/usr/local/mysql/bin/mysql ${FILE} > /dev/null'.replace("${BUILD_DIR}", INSTALLDIR).replace("${FILE}", fpath)):
+def execute_file(fpath, SILENT=True):
+	pipe = ">/dev/null 2>/dev/null" if SILENT else ""
+	if os.system('${BUILD_DIR}/usr/local/mysql/bin/mysql ${FILE} ${PIPE}'.replace("${BUILD_DIR}", INSTALLDIR).replace("${FILE}", fpath).replace("${PIPE}", pipe)):
 		raise Exception("Failed to execute file \"${FILE}\"".replace("${FILE}", fpath))
 
-def start_database():
-	process = subprocess.Popen(["${BUILD_DIR}/usr/local/mysql/bin/mysqld".replace("${BUILD_DIR}", INSTALLDIR)], stdout=FNULL, stderr=subprocess.STDOUT)
+def start_database(SILENT=True):
+	process_path = ["${BUILD_DIR}/usr/local/mysql/bin/mysqld".replace("${BUILD_DIR}", INSTALLDIR)]
+	if SILENT:
+		process = subprocess.Popen(process_path, stdout=FNULL, stderr=subprocess.STDOUT)
+	else:
+		process = subprocess.Popen(process_path)
 	attempts = 0
 	while True:
 		try:
@@ -107,7 +113,7 @@ def start_database():
 			pass
 	return process
 
-def stop_database(process):
+def stop_database(process, SILENT=True):
 	process.terminate()
 
 def delete_database():

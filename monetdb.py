@@ -10,20 +10,17 @@ CURRENTDIR = os.getcwd()
 PGDATA=os.path.join(CURRENTDIR, 'pgdata')
 INSTALLDIR = os.path.join(CURRENTDIR, 'monetdb-build-${VERSION}'.replace('${VERSION}', MONETDB_VERSION))
 
-
-
-
 def install(SILENT=True):
 	pipe = ">/dev/null 2>/dev/null" if SILENT else ""
 	print("[MONETDB] Installing database")
 	CURRENTDIR = os.getcwd()
 	os.system('mkdir -p ${BUILD_DIR}'.replace("${BUILD_DIR}", INSTALLDIR))
 	if not os.path.isfile('MonetDB-${VERSION}.tar.bz2'.replace('${VERSION}', MONETDB_VERSION)):
-		print("[POSTGRES] Downloading...")
+		print("[MONETDB] Downloading...")
 		if os.system('wget https://www.monetdb.org/downloads/sources/${MAIN_VERSION}/MonetDB-${VERSION}.tar.bz2 ${PIPE}'.replace("${MAIN_VERSION}", MONETDB_MAIN_VERSION).replace("${VERSION}", MONETDB_VERSION).replace("${PIPE}", pipe)):
 			raise Exception('Failed to download')
-	# if os.system('tar xvf MonetDB-${VERSION}.tar.bz2 ${PIPE}'.replace("${VERSION}", MONETDB_VERSION).replace("${PIPE}", pipe)):
-	# 	raise Exception("Failed to unzip")
+	if os.system('tar xvf MonetDB-${VERSION}.tar.bz2 ${PIPE}'.replace("${VERSION}", MONETDB_VERSION).replace("${PIPE}", pipe)):
+	 	raise Exception("Failed to unzip")
 	print("[MONETDB] Configuring")
 	#os.system('rm postgresql-${VERSION}.tar.gz'.replace("${VERSION}", POSTGRES_VERSION))
 	os.chdir('MonetDB-${VERSION}'.replace("${VERSION}", MONETDB_VERSION))
@@ -46,20 +43,25 @@ def cleanup_install():
 	os.system('rm -r MonetDB-${VERSION}'.replace("${VERSION}", MONETDB_VERSION))
 	os.system('rm -r ${BUILD_DIR}'.replace("${BUILD_DIR}", INSTALLDIR))
 
-def init_db():
+def init_db(SILENT=True):
 	pass
 
-def execute_query(query):
-	if os.system('${BUILD_DIR}/bin/mclient -s "${QUERY}" >/dev/null 2>/dev/null'.replace("${BUILD_DIR}", INSTALLDIR).replace("${QUERY}", query)):
+def execute_query(query, SILENT=True):
+	pipe = ">/dev/null 2>/dev/null" if SILENT else ""
+	if os.system('${BUILD_DIR}/bin/mclient -s "${QUERY}" ${PIPE}'.replace("${BUILD_DIR}", INSTALLDIR).replace("${QUERY}", query).replace("${PIPE}", pipe)):
 		raise Exception("Failed to execute query \"${QUERY}\"".replace("${QUERY}", query))
 
-def execute_file(fpath):
-	if os.system('${BUILD_DIR}/bin/mclient ${FILE} > /dev/null'.replace("${BUILD_DIR}", INSTALLDIR).replace("${FILE}", fpath)):
+def execute_file(fpath, SILENT=True):
+	pipe = ">/dev/null 2>/dev/null" if SILENT else ""
+	if os.system('${BUILD_DIR}/bin/mclient ${FILE} ${PIPE}'.replace("${BUILD_DIR}", INSTALLDIR).replace("${FILE}", fpath).replace("${PIPE}", pipe)):
 		raise Exception("Failed to execute file \"${FILE}\"".replace("${FILE}", fpath))
 
-def start_database():
-	os.environ['PGDATA'] = PGDATA
-	os.system("${BUILD_DIR}/bin/pg_ctl -l logfile start".replace("${BUILD_DIR}", INSTALLDIR))
+def start_database(SILENT=True):
+	process_path = ["${BUILD_DIR}/bin/mserver5".replace("${BUILD_DIR}", INSTALLDIR)]
+	if SILENT:
+		process = subprocess.Popen(process_path, stdout=FNULL, stderr=subprocess.STDOUT)
+	else:
+		process = subprocess.Popen(process_path)
 	attempts = 0
 	while True:
 		try:
@@ -71,10 +73,10 @@ def start_database():
 		except:
 			time.sleep(0.1)
 			pass
+	return process
 
-def stop_database():
-	os.environ['PGDATA'] = PGDATA
-	os.system("${BUILD_DIR}/bin/pg_ctl stop 2>/dev/null".replace("${BUILD_DIR}", INSTALLDIR))
+def stop_database(process, SILENT=True):
+	process.terminate()
 
 def delete_database():
 	os.system('rm -rf "${DBDIR}"'.replace("${DBDIR}", PGDATA))
@@ -82,28 +84,28 @@ def delete_database():
 def load_tpch():
 	CURRENTDIR = os.getcwd()
 	os.chdir('scripts')
-	print("[POSTGRES] Creating schema")
-	execute_file('postgres.schema.sql')
-	with open('postgres.load.sql', 'r') as f:
+	print("[MONETDB] Creating schema")
+	execute_file('monetdb.schema.sql')
+	with open('monetdb.load.sql', 'r') as f:
 		data = f.read()
 		data = data.replace('DIR', os.path.join(CURRENTDIR, 'tpch-dbgen'))
-	with open('postgres.load.sql.tmp', 'w') as f:
+	with open('monetdb.load.sql.tmp', 'w') as f:
 		f.write(data)
-	print("[POSTGRES] Loading TPCH")
-	execute_file('postgres.load.sql.tmp')
-	os.system('rm postgres.load.sql.tmp')
-	print("[POSTGRES] Analyzing and building constraints")
-	execute_file('postgres.analyze.sql')
-	execute_file('postgres.constraints.sql')
+	print("[MONETDB] Loading TPCH")
+	execute_file('monetdb.load.sql.tmp')
+	os.system('rm monetdb.load.sql.tmp')
+	print("[MONETDB] Analyzing and building constraints")
+	execute_file('monetdb.analyze.sql')
+	execute_file('monetdb.constraints.sql')
 	os.chdir(CURRENTDIR)
 
 def benchmark_query(fpath, NRUNS):
 	# hot run
-	print("[POSTGRES] Performing cold run...")
+	print("[MONETDB] Performing cold run...")
 	execute_file(fpath)
 	results = []
 	for i in range(NRUNS):
-		print("[POSTGRES] Query %d/%d" % ((i + 1), NRUNS))
+		print("[MONETDB] Query %d/%d" % ((i + 1), NRUNS))
 		start = time.time()
 		execute_file(fpath)
 		end = time.time()
@@ -112,8 +114,9 @@ def benchmark_query(fpath, NRUNS):
 
 
 def set_configuration(dict):
-	os.system('cp ${BUILD_DIR}/share/postgresql.conf.sample ${DBDIR}/postgresql.conf'.replace("${BUILD_DIR}", INSTALLDIR).replace("${DBDIR}", PGDATA))
-	with open('${DBDIR}/postgresql.conf'.replace("${DBDIR}", PGDATA), 'a') as f:
-		for entry in dict.keys():
-			f.write('${PROPERTY} = ${VALUE}\n'.replace('${PROPERTY}', str(entry)).replace('${VALUE}', dict[entry]))
+	pass
+	# os.system('cp ${BUILD_DIR}/share/postgresql.conf.sample ${DBDIR}/postgresql.conf'.replace("${BUILD_DIR}", INSTALLDIR).replace("${DBDIR}", PGDATA))
+	# with open('${DBDIR}/postgresql.conf'.replace("${DBDIR}", PGDATA), 'a') as f:
+	# 	for entry in dict.keys():
+	# 		f.write('${PROPERTY} = ${VALUE}\n'.replace('${PROPERTY}', str(entry)).replace('${VALUE}', dict[entry]))
 

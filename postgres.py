@@ -62,22 +62,28 @@ def cleanup_install():
 	os.system('rm -r postgresql-${VERSION}'.replace("${VERSION}", POSTGRES_VERSION))
 	os.system('rm -r ${BUILD_DIR}'.replace("${BUILD_DIR}", INSTALLDIR))
 
-def init_db():
+def init_db(SILENT=True):
+	print("[POSTGRES] Initializing database")
+	pipe = ">/dev/null 2>/dev/null" if SILENT else ""
 	os.environ['PGDATA'] = PGDATA
-	os.system('${BUILD_DIR}/bin/initdb'.replace("${BUILD_DIR}", INSTALLDIR))
+	os.system('${BUILD_DIR}/bin/initdb ${PIPE}'.replace("${BUILD_DIR}", INSTALLDIR).replace("${PIPE}", pipe))
 	set_configuration(optimal_configuration)
 
-def execute_query(query):
-	if os.system('${BUILD_DIR}/bin/psql -d postgres -c "${QUERY}" >/dev/null 2>/dev/null'.replace("${BUILD_DIR}", INSTALLDIR).replace("${QUERY}", query)):
+def execute_query(query, SILENT=True):
+	pipe = ">/dev/null 2>/dev/null" if SILENT else ""
+	if os.system('${BUILD_DIR}/bin/psql -d postgres -c "${QUERY}" ${PIPE}'.replace("${BUILD_DIR}", INSTALLDIR).replace("${QUERY}", query).replace("${PIPE}", pipe)):
 		raise Exception("Failed to execute query \"${QUERY}\"".replace("${QUERY}", query))
 
-def execute_file(fpath):
-	if os.system('${BUILD_DIR}/bin/psql -d postgres -f ${FILE} > /dev/null'.replace("${BUILD_DIR}", INSTALLDIR).replace("${FILE}", fpath)):
+def execute_file(fpath, SILENT=True):
+	pipe = ">/dev/null 2>/dev/null" if SILENT else ""
+	if os.system('${BUILD_DIR}/bin/psql -d postgres -f ${FILE} ${PIPE}'.replace("${BUILD_DIR}", INSTALLDIR).replace("${FILE}", fpath).replace("${PIPE}", pipe)):
 		raise Exception("Failed to execute file \"${FILE}\"".replace("${FILE}", fpath))
 
-def start_database():
+def start_database(SILENT=True):
+	print("[POSTGRES] Starting database")
+	pipe = ">/dev/null 2>/dev/null" if SILENT else ""
 	os.environ['PGDATA'] = PGDATA
-	os.system("${BUILD_DIR}/bin/pg_ctl -l logfile start".replace("${BUILD_DIR}", INSTALLDIR))
+	os.system("${BUILD_DIR}/bin/pg_ctl -l logfile start ${PIPE}".replace("${BUILD_DIR}", INSTALLDIR).replace("${PIPE}", pipe))
 	attempts = 0
 	while True:
 		try:
@@ -90,9 +96,10 @@ def start_database():
 			time.sleep(0.1)
 			pass
 
-def stop_database():
+def stop_database(process=None, SILENT=True):
+	pipe = ">/dev/null 2>/dev/null" if SILENT else ""
 	os.environ['PGDATA'] = PGDATA
-	os.system("${BUILD_DIR}/bin/pg_ctl stop 2>/dev/null".replace("${BUILD_DIR}", INSTALLDIR))
+	os.system("${BUILD_DIR}/bin/pg_ctl stop ${PIPE}".replace("${BUILD_DIR}", INSTALLDIR).replace("${PIPE}", pipe))
 
 def delete_database():
 	os.system('rm -rf "${DBDIR}"'.replace("${DBDIR}", PGDATA))

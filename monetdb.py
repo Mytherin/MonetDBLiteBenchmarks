@@ -30,7 +30,6 @@ def install(SILENT=True):
 	if os.system('tar xvf MonetDB-${VERSION}.tar.bz2 ${PIPE}'.replace("${VERSION}", MONETDB_VERSION).replace("${PIPE}", pipe)):
 	 	raise Exception("Failed to unzip")
 	print("[MONETDB] Configuring")
-	#os.system('rm postgresql-${VERSION}.tar.gz'.replace("${VERSION}", POSTGRES_VERSION))
 	os.chdir('MonetDB-${VERSION}'.replace("${VERSION}", MONETDB_VERSION))
 	if os.system('./configure --prefix="${BUILD_DIR}" --disable-strict --disable-assert --disable-debug --enable-optimize ${PIPE}'.replace("${BUILD_DIR}", INSTALLDIR).replace("${PIPE}", pipe)):
 		raise Exception("Failed to configure")

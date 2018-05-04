@@ -104,37 +104,8 @@ def stop_database(process=None, SILENT=True):
 def delete_database():
 	os.system('rm -rf "${DBDIR}"'.replace("${DBDIR}", PGDATA))
 
-def load_tpch():
-	CURRENTDIR = os.getcwd()
-	os.chdir('scripts')
-	print("[POSTGRES] Creating schema")
-	execute_file('postgres.schema.sql')
-	with open('postgres.load.sql', 'r') as f:
-		data = f.read()
-		data = data.replace('DIR', os.path.join(CURRENTDIR, 'tpch-dbgen'))
-	with open('postgres.load.sql.tmp', 'w') as f:
-		f.write(data)
-	print("[POSTGRES] Loading TPCH")
-	execute_file('postgres.load.sql.tmp')
-	os.system('rm postgres.load.sql.tmp')
-	print("[POSTGRES] Analyzing and building constraints")
-	execute_file('postgres.analyze.sql')
-	execute_file('postgres.constraints.sql')
-	os.chdir(CURRENTDIR)
-
-def benchmark_query(fpath, NRUNS):
-	# hot run
-	print("[POSTGRES] Performing cold run...")
-	execute_file(fpath)
-	results = []
-	for i in range(NRUNS):
-		print("[POSTGRES] Query %d/%d" % ((i + 1), NRUNS))
-		start = time.time()
-		execute_file(fpath)
-		end = time.time()
-		results.append(end - start)
-	return results
-
+def dbname():
+	return 'postgres'
 
 def set_configuration(dict):
 	os.system('cp ${BUILD_DIR}/share/postgresql.conf.sample ${DBDIR}/postgresql.conf'.replace("${BUILD_DIR}", INSTALLDIR).replace("${DBDIR}", PGDATA))

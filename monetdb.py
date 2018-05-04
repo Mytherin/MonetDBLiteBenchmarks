@@ -88,37 +88,8 @@ def stop_database(process, SILENT=True):
 def delete_database():
 	os.system('rm -rf "${DBDIR}"'.replace("${DBDIR}", PGDATA))
 
-def load_tpch():
-	CURRENTDIR = os.getcwd()
-	os.chdir('scripts')
-	print("[MONETDB] Creating schema")
-	execute_file('monetdb.schema.sql')
-	with open('monetdb.load.sql', 'r') as f:
-		data = f.read()
-		data = data.replace('DIR', os.path.join(CURRENTDIR, 'tpch-dbgen'))
-	with open('monetdb.load.sql.tmp', 'w') as f:
-		f.write(data)
-	print("[MONETDB] Loading TPCH")
-	execute_file('monetdb.load.sql.tmp')
-	os.system('rm monetdb.load.sql.tmp')
-	print("[MONETDB] Analyzing and building constraints")
-	execute_file('monetdb.analyze.sql')
-	execute_file('monetdb.constraints.sql')
-	os.chdir(CURRENTDIR)
-
-def benchmark_query(fpath, NRUNS):
-	# hot run
-	print("[MONETDB] Performing cold run...")
-	execute_file(fpath)
-	results = []
-	for i in range(NRUNS):
-		print("[MONETDB] Query %d/%d" % ((i + 1), NRUNS))
-		start = time.time()
-		execute_file(fpath)
-		end = time.time()
-		results.append(end - start)
-	return results
-
+def dbname():
+	return 'monetdb'
 
 def set_configuration(dict):
 	dotmonetdb = os.path.join(os.environ['HOME'], '.monetdb')

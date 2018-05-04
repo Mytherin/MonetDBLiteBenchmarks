@@ -118,37 +118,8 @@ def stop_database(process, SILENT=True):
 def delete_database():
 	os.system('rm -rf "${DBDIR}"'.replace("${DBDIR}", PGDATA))
 
-def load_tpch():
-	CURRENTDIR = os.getcwd()
-	os.chdir('scripts')
-	print("[MARIADB] Creating schema")
-	execute_file('mariadb.schema.sql')
-	with open('mariadb.load.sql', 'r') as f:
-		data = f.read()
-		data = data.replace('DIR', os.path.join(CURRENTDIR, 'tpch-dbgen'))
-	with open('mariadb.load.sql.tmp', 'w') as f:
-		f.write(data)
-	print("[MARIADB] Loading TPCH")
-	execute_file('mariadb.load.sql.tmp')
-	os.system('rm mariadb.load.sql.tmp')
-	print("[MARIADB] Analyzing and building constraints")
-	execute_file('mariadb.analyze.sql')
-	execute_file('mariadb.constraints.sql')
-	os.chdir(CURRENTDIR)
-
-def benchmark_query(fpath, NRUNS):
-	# hot run
-	print("[MARIADB] Performing cold run...")
-	execute_file(fpath)
-	results = []
-	for i in range(NRUNS):
-		print("[MARIADB] Query %d/%d" % ((i + 1), NRUNS))
-		start = time.time()
-		execute_file(fpath)
-		end = time.time()
-		results.append(end - start)
-	return results
-
+def dbname():
+	return 'mariadb'
 
 def set_configuration(dict):
 	HOME = os.environ['HOME']

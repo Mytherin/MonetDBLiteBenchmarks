@@ -6,4 +6,3 @@ import monetdb
 import tpch
 
 
-monetdb.install(False)

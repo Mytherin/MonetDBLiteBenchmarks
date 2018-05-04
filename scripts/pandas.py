@@ -27,7 +27,6 @@ def q1():
 	  		 .agg({'l_quantity': 'sum', 'l_extendedprice': 'sum', 'disc_price': 'sum', 'charge': 'sum',
 					 'l_quantity': 'mean', 'l_extendedprice': 'mean', 'l_discount': 'mean', 'l_shipdate': 'count'})
 
-
 def q2():
 	ps = partsupp[["ps_partkey", "ps_suppkey", "ps_supplycost"]]
 	p = part[["p_partkey", "p_mfgr", "p_size", "p_type"]][(part.p_size == 15) & (part.p_type.str.match(".*BRASS$"))][["p_partkey", "p_mfgr"]]

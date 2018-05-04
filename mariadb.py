@@ -19,6 +19,8 @@ DBNAME = 'test'
 
 FNULL = open(os.devnull, 'w')
 
+DBPROCESS = None
+
 optimal_configuration = {
 	'client': {
 		'user': USER,
@@ -94,11 +96,12 @@ def execute_file(fpath, SILENT=True):
 	execute_query('source ' + fpath, SILENT)
 
 def start_database(SILENT=True):
+	global DBPROCESS
 	process_path = ["${BUILD_DIR}/usr/local/mysql/bin/mysqld".replace("${BUILD_DIR}", INSTALLDIR)]
 	if SILENT:
-		process = subprocess.Popen(process_path, stdout=FNULL, stderr=subprocess.STDOUT)
+		DBPROCESS = subprocess.Popen(process_path, stdout=FNULL, stderr=subprocess.STDOUT)
 	else:
-		process = subprocess.Popen(process_path)
+		DBPROCESS = subprocess.Popen(process_path)
 	attempts = 0
 	while True:
 		try:
@@ -110,10 +113,10 @@ def start_database(SILENT=True):
 		except:
 			time.sleep(0.1)
 			pass
-	return process
 
-def stop_database(process, SILENT=True):
-	process.terminate()
+def stop_database(SILENT=True):
+	global DBPROCESS
+	DBPROCESS.terminate()
 
 def delete_database():
 	os.system('rm -rf "${DBDIR}"'.replace("${DBDIR}", PGDATA))

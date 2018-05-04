@@ -96,7 +96,7 @@ def start_database(SILENT=True):
 			time.sleep(0.1)
 			pass
 
-def stop_database(process=None, SILENT=True):
+def stop_database(SILENT=True):
 	pipe = ">/dev/null 2>/dev/null" if SILENT else ""
 	os.environ['PGDATA'] = PGDATA
 	os.system("${BUILD_DIR}/bin/pg_ctl stop ${PIPE}".replace("${BUILD_DIR}", INSTALLDIR).replace("${PIPE}", pipe))

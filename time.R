@@ -22,6 +22,8 @@ for(j in 1:length(timefiles)) {
 	for(i in 1:nruns + 1) {
 		if (i > 1) {
 			results[i - 1] <- system.time(source(timefile))[3]
+		} else {
+			source(timefile)
 		}
 	}
 	df[timefile] <- results

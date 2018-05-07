@@ -37,5 +37,3 @@ with open('tmp_results.csv', 'w+') as f:
 			f.write(str(val))
 			f.write(',' if i < len(keys) - 1 else '\n')
 
-
-exit(0)

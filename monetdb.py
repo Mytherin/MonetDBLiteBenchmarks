@@ -8,8 +8,9 @@ import subprocess
 MONETDB_MAIN_VERSION='Mar2018'
 MONETDB_VERSION = '11.29.3'
 CURRENTDIR = os.getcwd()
-PGDATA=os.path.join(CURRENTDIR, 'pgdata')
 INSTALLDIR = os.path.join(CURRENTDIR, 'monetdb-build-${VERSION}'.replace('${VERSION}', MONETDB_VERSION))
+DBDIR=os.path.join(INSTALLDIR, 'var/monetdb5/dbfarm/demo')
+
 
 FNULL = open(os.devnull, 'w')
 
@@ -88,10 +89,19 @@ def stop_database(SILENT=True):
 	DBPROCESS.terminate()
 
 def delete_database():
-	os.system('rm -rf "${DBDIR}"'.replace("${DBDIR}", PGDATA))
+	os.system('rm -rf "${DBDIR}"'.replace("${DBDIR}", DBDIR))
 
 def dbname():
 	return 'monetdb'
+
+def get_connection_parameters():
+	return {
+		'host': 'localhost',
+		'port': '50000',
+		'database': 'demo',
+		'user': 'monetdb',
+		'password': 'monetdb'
+	}
 
 def set_configuration(dict):
 	dotmonetdb = os.path.join(os.environ['HOME'], '.monetdb')

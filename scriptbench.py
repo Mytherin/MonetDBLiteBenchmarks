@@ -4,6 +4,7 @@ import os
 
 INITFILE_PARAM = 'INITFILE'
 TIMEFILE_PARAM = 'TIMEFILE'
+FINALFILE_PARAM = 'FINALFILE'
 NRUNS_PARAM = 'NRUNS'
 
 RESULT_FILE = 'tmp_results.csv'
@@ -19,10 +20,11 @@ def init(SILENT=True):
 	print("[SCRIPT] Initializing Julia packages")
 	os.system('julia scripts/packages.jl ${PIPE}'.replace('${PIPE}', pipe))
 
-def run_script(lang, init_script, bench_scripts, nruns, SILENT=True):
+def run_script(lang, init_script, bench_scripts, final_scripts, nruns, SILENT=True):
 	pipe = ">/dev/null" if SILENT else ""
-	os.environ[INITFILE_PARAM] = init_script
+	os.environ[INITFILE_PARAM] = ','.join(init_script)
 	os.environ[TIMEFILE_PARAM] = ','.join(bench_scripts)
+	os.environ[FINALFILE_PARAM] = ','.join(final_scripts)
 	os.environ[NRUNS_PARAM] = str(nruns)
 	print("[SCRIPT] Running program")
 	if lang == Julia:
@@ -35,6 +37,7 @@ def run_script(lang, init_script, bench_scripts, nruns, SILENT=True):
 		raise Exception("Unrecognized language \"%s\"" % (str(lang)))
 	del os.environ[INITFILE_PARAM]
 	del os.environ[TIMEFILE_PARAM]
+	del os.environ[FINALFILE_PARAM]
 	del os.environ[NRUNS_PARAM]
 	timings = {}
 	indices = []

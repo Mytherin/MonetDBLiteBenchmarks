@@ -1,6 +1,7 @@
 
-initfile <- Sys.getenv('INITFILE')
+initfiles <- strsplit(Sys.getenv('INITFILE'), ",")[[1]]
 timefiles <- strsplit(Sys.getenv('TIMEFILE'), ",")[[1]]
+finalfiles <- strsplit(Sys.getenv('FINALFILE'), ",")[[1]]
 nruns <- as.integer(Sys.getenv('NRUNS'))
 
 for(j in 1:length(timefiles)) {
@@ -10,10 +11,18 @@ for(j in 1:length(timefiles)) {
 	}
 }
 
-if(file.exists(initfile)){
-	source(initfile)
+for(j in 1:length(initfiles)) {
+	initfile = initfiles[j]
+	if(file.exists(initfile)){
+		source(initfile)
+	}
 }
 
+if (length(finalfiles) > 0) {
+	if (length(finalfiles) != length(timefiles)) {
+		stop("Timing files and final files should have the same length!")
+	}
+}
 
 df <- data.frame(id=as.integer(1:nruns))
 for(j in 1:length(timefiles)) {
@@ -25,8 +34,11 @@ for(j in 1:length(timefiles)) {
 		} else {
 			source(timefile)
 		}
+		if (length(finalfiles) > 0) {
+			source(finalfiles[j])
+		}
 	}
 	df[timefile] <- results
 }
 
-write.csv(df, 'tmp_results', quote=FALSE, row.names=FALSE)
+write.csv(df, 'tmp_results.csv', quote=FALSE, row.names=FALSE)

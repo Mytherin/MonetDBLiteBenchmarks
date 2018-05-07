@@ -107,6 +107,15 @@ def delete_database():
 def dbname():
 	return 'postgres'
 
+def get_connection_parameters():
+	return {
+		'host': 'localhost',
+		'port': '5432',
+		'database': 'postgres',
+		'user': os.environ['USER'],
+		'password': ''
+	}
+
 def set_configuration(dict):
 	os.system('cp ${BUILD_DIR}/share/postgresql.conf.sample ${DBDIR}/postgresql.conf'.replace("${BUILD_DIR}", INSTALLDIR).replace("${DBDIR}", PGDATA))
 	with open('${DBDIR}/postgresql.conf'.replace("${DBDIR}", PGDATA), 'a') as f:

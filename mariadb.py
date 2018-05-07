@@ -124,6 +124,16 @@ def delete_database():
 def dbname():
 	return 'mariadb'
 
+def get_connection_parameters():
+	return {
+		'host': 'localhost',
+		'port': PORT,
+		'database': DBNAME,
+		'user': USER,
+		'password': '',
+		'socket': SOCKET
+	}
+
 def set_configuration(dict):
 	HOME = os.environ['HOME']
 	with open(os.path.join(HOME, '.my.cnf'), 'w+') as f:

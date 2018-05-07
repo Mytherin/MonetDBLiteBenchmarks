@@ -29,5 +29,4 @@ for(j in 1:length(timefiles)) {
 	df[timefile] <- results
 }
 
-print(df)
-write.csv(df, 'tmp_r_results.csv', quote=FALSE, row.names=FALSE)
+write.csv(df, 'tmp_results', quote=FALSE, row.names=FALSE)

@@ -1,16 +1,18 @@
 
 import pandas as pd
 import numpy as np
-import timeit, csv
+import os
 
-region = pd.read_csv("region.tbl", sep='|', names=["r_regionkey", "r_name", "r_comment"])
-nation = pd.read_csv("nation.tbl", sep='|', names=["n_nationkey", "n_name", "n_regionkey", "n_comment"])
-supplier = pd.read_csv("supplier.tbl", sep='|', names=["s_suppkey","s_name","s_address","s_nationkey","s_phone","s_acctbal","s_comment"])
-customer = pd.read_csv("customer.tbl", sep='|', names=["c_custkey","c_name","c_address","c_nationkey","c_phone","c_acctbal","c_mktsegment","c_comment"], dtype={'c_mktsegment' : 'category'})
-part = pd.read_csv("part.tbl", sep='|', names=["p_partkey","p_name","p_mfgr","p_brand","p_type","p_size","p_container","p_retailprice","p_comment"], dtype={'p_container' : 'category'})
-partsupp = pd.read_csv("partsupp.tbl", sep='|', names=["ps_partkey","ps_suppkey","ps_availqty","ps_supplycost","ps_comment"])
-orders = pd.read_csv("orders.tbl", sep='|', names=["o_orderkey","o_custkey","o_orderstatus","o_totalprice","o_orderdate","o_orderpriority","o_clerk","o_shippriority","o_comment"], dtype={'o_orderstatus' : 'category', 'o_orderpriority' : 'category'}, parse_dates=['o_orderdate'])
-lineitem = pd.read_csv("lineitem.tbl", sep='|', names=["l_orderkey","l_partkey","l_suppkey","l_linenumber","l_quantity","l_extendedprice","l_discount","l_tax","l_returnflag","l_linestatus","l_shipdate","l_commitdate","l_receiptdate","l_shipinstruct","l_shipmode","l_comment"], dtype={'l_returnflag': 'category', 'l_linestatus': 'category'}, parse_dates=['l_shipdate', 'l_commitdate', 'l_receiptdate'])
+tpchdir = os.environ['TPCHDIR']
+
+region = pd.read_csv(os.path.join(tpchdir, "region.tbl"), sep='|', names=["r_regionkey", "r_name", "r_comment"])
+nation = pd.read_csv(os.path.join(tpchdir, "nation.tbl"), sep='|', names=["n_nationkey", "n_name", "n_regionkey", "n_comment"])
+supplier = pd.read_csv(os.path.join(tpchdir, "supplier.tbl"), sep='|', names=["s_suppkey","s_name","s_address","s_nationkey","s_phone","s_acctbal","s_comment"])
+customer = pd.read_csv(os.path.join(tpchdir, "customer.tbl"), sep='|', names=["c_custkey","c_name","c_address","c_nationkey","c_phone","c_acctbal","c_mktsegment","c_comment"], dtype={'c_mktsegment' : 'category'})
+part = pd.read_csv(os.path.join(tpchdir, "part.tbl"), sep='|', names=["p_partkey","p_name","p_mfgr","p_brand","p_type","p_size","p_container","p_retailprice","p_comment"], dtype={'p_container' : 'category'})
+partsupp = pd.read_csv(os.path.join(tpchdir, "partsupp.tbl"), sep='|', names=["ps_partkey","ps_suppkey","ps_availqty","ps_supplycost","ps_comment"])
+orders = pd.read_csv(os.path.join(tpchdir, "orders.tbl"), sep='|', names=["o_orderkey","o_custkey","o_orderstatus","o_totalprice","o_orderdate","o_orderpriority","o_clerk","o_shippriority","o_comment"], dtype={'o_orderstatus' : 'category', 'o_orderpriority' : 'category'}, parse_dates=['o_orderdate'])
+lineitem = pd.read_csv(os.path.join(tpchdir, "lineitem.tbl"), sep='|', names=["l_orderkey","l_partkey","l_suppkey","l_linenumber","l_quantity","l_extendedprice","l_discount","l_tax","l_returnflag","l_linestatus","l_shipdate","l_commitdate","l_receiptdate","l_shipinstruct","l_shipmode","l_comment"], dtype={'l_returnflag': 'category', 'l_linestatus': 'category'}, parse_dates=['l_shipdate', 'l_commitdate', 'l_receiptdate'])
 
 
 def udf_disc_price(extended, discount):
@@ -139,30 +141,3 @@ def q10():
 	locn = loc.merge(nation[["n_nationkey", "n_name"]], left_on="c_nationkey", right_on="n_nationkey") 
 	res = locn[["o_custkey", "c_name", "volume", "c_acctbal", "n_name", "c_address", "c_phone", "c_comment"]].sort_values("volume", ascending=False).head(20)
 	return res
-
-
-##### 
-n = 5
-
-f = open("pandas.csv", 'w')
-writer = csv.writer(f)
-
-
-def bench(q):
-	res = np.median(timeit.repeat("q%d()" % q, setup="from __main__ import q%d" % q, number=1, repeat=n))
-	print(res)
-	writer.writerow(["pandas", "%d" % q, "%f" % res])
-	f.flush()
-
-
-bench(1)
-bench(2)
-bench(3)
-bench(4)
-bench(5)
-bench(6)
-bench(7)
-bench(8)
-bench(9)
-bench(10)
-

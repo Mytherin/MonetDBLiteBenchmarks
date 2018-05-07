@@ -2,7 +2,7 @@
 
 import os
 
-def generate_tpch(SILENT=True, sf=1):
+def generate_tpch(sf=1, SILENT=True):
 	CURRENTDIR = os.getcwd()
 	pipe = ">/dev/null 2>/dev/null" if SILENT else ""
 	tpchdir = os.path.join(CURRENTDIR, 'tpch-${SF}'.replace('${SF}', str(sf)))
@@ -25,9 +25,8 @@ def generate_tpch(SILENT=True, sf=1):
 		os.system('rm -f ${FILE}.tmp'.replace("${FILE}", f))
 		os.system("sed 's/.$//' ${FILE} > ${FILE}.tmp".replace("${FILE}", f))
 		os.system('mv ${FILE}.tmp ${FILE}'.replace("${FILE}", f))
-	os.system('rm -rf ../${TPCHDIR}'.replace('${TPCHDIR}', tpchdir))
-	os.system('mkdir -p ../${TPCHDIR}'.replace('${TPCHDIR}', tpchdir))
-	os.system('mv *.tbl ../${TPCHDIR}'.replace('${TPCHDIR}', tpchdir))
+	os.system('mkdir -p ${TPCHDIR}'.replace('${TPCHDIR}', tpchdir))
+	os.system('mv *.tbl ${TPCHDIR}'.replace('${TPCHDIR}', tpchdir))
 	os.chdir(CURRENTDIR)
 	return tpchdir
 

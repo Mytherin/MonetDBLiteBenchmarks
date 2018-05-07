@@ -31,7 +31,7 @@ for i = 1:length(timefiles)
 	df[timefile] = results
 end
 
-open("tmp_jl_results.csv", "w+") do f
+open("tmp_results.csv", "w+") do f
 	for i = 1:length(timefiles)
 		write(f, timefiles[i])
 		if i < length(timefiles)
@@ -48,5 +48,4 @@ open("tmp_jl_results.csv", "w+") do f
 		end
 		write(f, "\n")
 	end
-
 end

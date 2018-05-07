@@ -1,18 +1,16 @@
-# Pkg.add("CSV")
-Pkg.update()
 
 using DataFrames, CSV
-wr = true
 ne = false
-region = CSV.read("region.tbl", delim='|', header=["r_regionkey", "r_name", "r_comment"], weakrefstrings=wr, nullable=ne)
-nation = CSV.read("nation.tbl", delim='|', header=["n_nationkey", "n_name", "n_regionkey", "n_comment"],  weakrefstrings=wr, nullable=ne)
-supplier = CSV.read("supplier.tbl", delim='|', header=["s_suppkey","s_name","s_address","s_nationkey","s_phone","s_acctbal","s_comment"], weakrefstrings=wr, nullable=ne)
-customer = CSV.read("customer.tbl", delim='|', header=["c_custkey","c_name","c_address","c_nationkey","c_phone","c_acctbal","c_mktsegment","c_comment"], weakrefstrings=wr, nullable=ne)
-part = CSV.read("part.tbl", delim='|', header=["p_partkey","p_name","p_mfgr","p_brand","p_type","p_size","p_container","p_retailprice","p_comment"], weakrefstrings=wr, nullable=ne)
-partsupp = CSV.read("partsupp.tbl", delim='|', header=["ps_partkey","ps_suppkey","ps_availqty","ps_supplycost","ps_comment"], weakrefstrings=wr, nullable=ne)
-orders = CSV.read("orders.tbl", delim='|', header=["o_orderkey","o_custkey","o_orderstatus","o_totalprice","o_orderdate","o_orderpriority","o_clerk","o_shippriority","o_comment"], weakrefstrings=wr, nullable=ne)
-lineitem = CSV.read("lineitem.tbl", delim='|', header=["l_orderkey","l_partkey","l_suppkey","l_linenumber","l_quantity","l_extendedprice","l_discount","l_tax","l_returnflag","l_linestatus","l_shipdate","l_commitdate","l_receiptdate","l_shipinstruct","l_shipmode","l_comment"], weakrefstrings=wr, nullable=ne)
 
+tpchdir = ENV["TPCHDIR"]
+region = CSV.read(joinpath(tpchdir, "region.tbl"), delim='|', header=["r_regionkey", "r_name", "r_comment"], nullable=ne)
+nation = CSV.read(joinpath(tpchdir, "nation.tbl"), delim='|', header=["n_nationkey", "n_name", "n_regionkey", "n_comment"],  nullable=ne)
+supplier = CSV.read(joinpath(tpchdir, "supplier.tbl"), delim='|', header=["s_suppkey","s_name","s_address","s_nationkey","s_phone","s_acctbal","s_comment"], nullable=ne)
+customer = CSV.read(joinpath(tpchdir, "customer.tbl"), delim='|', header=["c_custkey","c_name","c_address","c_nationkey","c_phone","c_acctbal","c_mktsegment","c_comment"], nullable=ne)
+part = CSV.read(joinpath(tpchdir, "part.tbl"), delim='|', header=["p_partkey","p_name","p_mfgr","p_brand","p_type","p_size","p_container","p_retailprice","p_comment"], nullable=ne)
+partsupp = CSV.read(joinpath(tpchdir, "partsupp.tbl"), delim='|', header=["ps_partkey","ps_suppkey","ps_availqty","ps_supplycost","ps_comment"], nullable=ne)
+orders = CSV.read(joinpath(tpchdir, "orders.tbl"), delim='|', header=["o_orderkey","o_custkey","o_orderstatus","o_totalprice","o_orderdate","o_orderpriority","o_clerk","o_shippriority","o_comment"], nullable=ne)
+lineitem = CSV.read(joinpath(tpchdir, "lineitem.tbl"), delim='|', header=["l_orderkey","l_partkey","l_suppkey","l_linenumber","l_quantity","l_extendedprice","l_discount","l_tax","l_returnflag","l_linestatus","l_shipdate","l_commitdate","l_receiptdate","l_shipinstruct","l_shipmode","l_comment"], nullable=ne)
 
 function q1()
 	gc_enable(false)
@@ -186,38 +184,3 @@ function q10()
 	gc_enable(true)
 	res
 end
-
-
-
-function bench(f, n) 
-	tic()
-	f()
-	r1 = toc()
-	tic()
-	f()
-	r2 = toc()
-	tic()
-	f()
-	r3 = toc()
-	tic()
-	f()
-	r4 = toc()
-	tic()
-	f()
-	r5 = toc()
-	CSV.write("julia.csv", DataFrame(exp="Julia", query=n, time_median_ms=median([r1, r2, r3, r4, r5])*1000); append=true)
-
-end
-
-
-bench(q1, 1)
-bench(q2, 2)
-bench(q3, 3)
-bench(q4, 4)
-bench(q5, 5)
-bench(q6, 6)
-bench(q7, 7)
-bench(q8, 8)
-bench(q9, 9)
-bench(q10, 10)
-

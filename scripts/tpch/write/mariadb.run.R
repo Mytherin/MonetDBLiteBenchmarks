@@ -1,0 +1,2 @@
+
+dbWriteTable(con, "lineitem", lineitem)

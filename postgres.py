@@ -127,3 +127,6 @@ def cflags():
 
 def ldflags():
 	return '-L${BUILD_DIR}/lib'.replace("${BUILD_DIR}", INSTALLDIR)
+
+def path():
+	return '${BUILD_DIR}/bin'.replace("${BUILD_DIR}", INSTALLDIR)

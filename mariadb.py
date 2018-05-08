@@ -152,3 +152,6 @@ def cflags():
 
 def ldflags():
 	return '-L${BUILD_DIR}/usr/local/mysql/lib'.replace("${BUILD_DIR}", INSTALLDIR)
+
+def path():
+	return '${BUILD_DIR}/usr/local/mysql/bin'.replace("${BUILD_DIR}", INSTALLDIR)

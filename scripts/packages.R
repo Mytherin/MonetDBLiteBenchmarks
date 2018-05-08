@@ -1,5 +1,5 @@
 
-packages = c("dplyr", "data.table", "dbplyr", "devtools", "MonetDBLite", "RPostgreSQL")
+packages = c("dplyr", "data.table", "dbplyr", "devtools", "MonetDBLite", "RPostgreSQL", "RMySQL")
 
 r = getOption("repos") # hard code the cloud repo for CRAN
 r["CRAN"] = "https://cloud.r-project.org"

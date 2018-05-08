@@ -50,8 +50,8 @@ def is_installed():
 
 def cleanup_install():
 	os.system('rm MonetDB-${VERSION}.tar.bz2'.replace("${VERSION}", MONETDB_VERSION))
-	os.system('rm -r MonetDB-${VERSION}'.replace("${VERSION}", MONETDB_VERSION))
-	os.system('rm -r ${BUILD_DIR}'.replace("${BUILD_DIR}", INSTALLDIR))
+	os.system('rm -rf MonetDB-${VERSION}'.replace("${VERSION}", MONETDB_VERSION))
+	os.system('rm -rf ${BUILD_DIR}'.replace("${BUILD_DIR}", INSTALLDIR))
 
 def init_db(SILENT=True):
 	set_configuration(optimal_configuration)
@@ -109,3 +109,9 @@ def set_configuration(dict):
 		with open(dotmonetdb, 'w+') as f:
 			for entry in dict.keys():
 				f.write('${PROPERTY}=${VALUE}\n'.replace('${PROPERTY}', str(entry)).replace('${VALUE}', dict[entry]))
+
+def cflags():
+	return '-I${BUILD_DIR}/include'.replace("${BUILD_DIR}", INSTALLDIR)
+
+def ldflags():
+	return '-L${BUILD_DIR}/lib'.replace("${BUILD_DIR}", INSTALLDIR)

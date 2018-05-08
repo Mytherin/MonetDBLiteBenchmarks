@@ -75,8 +75,8 @@ def is_installed():
 
 def cleanup_install():
 	os.system('rm mariadb-${VERSION}.tar.gz'.replace("${VERSION}", MARIADB_VERSION))
-	os.system('rm -r mariadb-${VERSION}'.replace("${VERSION}", MARIADB_VERSION))
-	os.system('rm -r ${BUILD_DIR}'.replace("${BUILD_DIR}", INSTALLDIR))
+	os.system('rm -rf mariadb-${VERSION}'.replace("${VERSION}", MARIADB_VERSION))
+	os.system('rm -rf ${BUILD_DIR}'.replace("${BUILD_DIR}", INSTALLDIR))
 
 def init_db(SILENT=True):
 	pipe = ">/dev/null 2>/dev/null" if SILENT else ""
@@ -147,6 +147,8 @@ def set_configuration(dict):
 			f.write("\n")
 
 
+def cflags():
+	return '-I${BUILD_DIR}/usr/local/mysql/include'.replace("${BUILD_DIR}", INSTALLDIR)
 
-
-
+def ldflags():
+	return '-L${BUILD_DIR}/usr/local/mysql/lib'.replace("${BUILD_DIR}", INSTALLDIR)

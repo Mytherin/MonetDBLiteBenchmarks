@@ -59,8 +59,8 @@ def is_installed():
 
 def cleanup_install():
 	os.system('rm postgresql-${VERSION}.tar.gz'.replace("${VERSION}", POSTGRES_VERSION))
-	os.system('rm -r postgresql-${VERSION}'.replace("${VERSION}", POSTGRES_VERSION))
-	os.system('rm -r ${BUILD_DIR}'.replace("${BUILD_DIR}", INSTALLDIR))
+	os.system('rm -rf postgresql-${VERSION}'.replace("${VERSION}", POSTGRES_VERSION))
+	os.system('rm -rf ${BUILD_DIR}'.replace("${BUILD_DIR}", INSTALLDIR))
 
 def init_db(SILENT=True):
 	print("[POSTGRES] Initializing database")
@@ -122,3 +122,8 @@ def set_configuration(dict):
 		for entry in dict.keys():
 			f.write('${PROPERTY} = ${VALUE}\n'.replace('${PROPERTY}', str(entry)).replace('${VALUE}', dict[entry]))
 
+def cflags():
+	return '-I${BUILD_DIR}/include'.replace("${BUILD_DIR}", INSTALLDIR)
+
+def ldflags():
+	return '-L${BUILD_DIR}/lib'.replace("${BUILD_DIR}", INSTALLDIR)

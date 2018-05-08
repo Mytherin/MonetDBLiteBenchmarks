@@ -148,7 +148,7 @@ def set_configuration(dict):
 
 
 def cflags():
-	return '-I${BUILD_DIR}/usr/local/mysql/include'.replace("${BUILD_DIR}", INSTALLDIR)
+	return '-I${BUILD_DIR}/usr/local/mysql/include/mysql'.replace("${BUILD_DIR}", INSTALLDIR)
 
 def ldflags():
 	return '-L${BUILD_DIR}/usr/local/mysql/lib'.replace("${BUILD_DIR}", INSTALLDIR)

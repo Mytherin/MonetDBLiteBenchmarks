@@ -7,3 +7,8 @@ export CFLAGS="$EXTRA_CFLAGS $CFLAGS"
 export LDFLAGS="$EXTRA_LDFLAGS $LDFLAGS"
 export PATH="$EXTRA_PATH:$PATH"
 
+export PKG_CFLAGS=$CFLAGS
+export INCLUDE_DIR='.'
+export LIB_DIR=`python -c "import mariadb; print(mariadb.ldflags()[2:])"`
+export LIB_DIR="$LIB_DIR `mariadb_config --libs`"
+export LD_LIBRARY_PATH=`python -c "import mariadb; print(mariadb.ldflags()[2:])"`

@@ -1,2 +1,2 @@
 
-dbWriteTable(con, "lineitem", lineitem)
+dbWriteTable(con, "lineitem", lineitem, csvdump=TRUE)

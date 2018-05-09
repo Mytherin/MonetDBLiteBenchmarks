@@ -7,20 +7,20 @@ def load_tpch(dbmodule, tpchdir, SILENT=True):
 	dbmodule.start_database()
 	dbname = dbmodule.dbname()
 	CURRENTDIR = os.getcwd()
-	os.chdir('scripts')
+	os.chdir('scripts/tpch/${DBNAME}'.replace('${DBNAME}', dbname))
 	print("[${DBNAME}] Creating schema".replace('${DBNAME}', dbname.upper()))
-	dbmodule.execute_file('scripts/tpch/${DBNAME}/schema.sql'.replace('${DBNAME}', dbname), SILENT)
-	with open('scripts/tpch/${DBNAME}/load.sql'.replace('${DBNAME}', dbname), 'r') as f:
+	dbmodule.execute_file('schema.sql', SILENT)
+	with open('load.sql', 'r') as f:
 		data = f.read()
 		data = data.replace('DIR', tpchdir)
-	with open('scripts/tpch/${DBNAME}/load.sql.tmp'.replace('${DBNAME}', dbname), 'w') as f:
+	with open('load.sql.tmp', 'w') as f:
 		f.write(data)
 	print("[${DBNAME}] Loading TPCH".replace('${DBNAME}', dbname.upper()))
-	dbmodule.execute_file('scripts/tpch/${DBNAME}/load.sql.tmp'.replace('${DBNAME}', dbname), SILENT)
-	os.system('rm ${DBNAME}.load.sql.tmp'.replace('${DBNAME}', dbname))
+	dbmodule.execute_file('load.sql.tmp', SILENT)
+	os.system('rm load.sql.tmp')
 	print("[${DBNAME}] Analyzing and building constraints".replace('${DBNAME}', dbname.upper()))
-	dbmodule.execute_file('scripts/tpch/${DBNAME}/analyze.sql'.replace('${DBNAME}', dbname), SILENT)
-	dbmodule.execute_file('scripts/tpch/${DBNAME}/constraints.sql'.replace('${DBNAME}', dbname), SILENT)
+	dbmodule.execute_file('analyze.sql', SILENT)
+	dbmodule.execute_file('constraints.sql', SILENT)
 	os.chdir(CURRENTDIR)
 	dbmodule.stop_database()
 

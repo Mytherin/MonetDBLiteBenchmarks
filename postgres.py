@@ -130,3 +130,6 @@ def ldflags():
 
 def path():
 	return '${BUILD_DIR}/bin'.replace("${BUILD_DIR}", INSTALLDIR)
+
+def force_shutdown():
+	os.system('killall -9 postgres')

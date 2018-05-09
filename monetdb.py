@@ -68,7 +68,7 @@ def execute_file(fpath, SILENT=True):
 
 def start_database(SILENT=True):
 	global DBPROCESS
-	process_path = ["${BUILD_DIR}/bin/mserver5".replace("${BUILD_DIR}", INSTALLDIR)]
+	process_path = ["${BUILD_DIR}/bin/mserver5".replace("${BUILD_DIR}", INSTALLDIR), "--daemon=yes"]
 	if SILENT:
 		DBPROCESS = subprocess.Popen(process_path, stdout=FNULL, stderr=subprocess.STDOUT)
 	else:
@@ -87,6 +87,7 @@ def start_database(SILENT=True):
 
 def stop_database(SILENT=True):
 	DBPROCESS.terminate()
+	DBPROCESS.wait()
 
 def delete_database():
 	os.system('rm -rf "${DBDIR}"'.replace("${DBDIR}", DBDIR))
@@ -118,3 +119,6 @@ def ldflags():
 
 def path():
 	return '${BUILD_DIR}/bin'.replace("${BUILD_DIR}", INSTALLDIR)
+
+def force_shutdown():
+	os.system('killall -9 mserver5')

@@ -11,20 +11,21 @@ import dbbench
 database_modules = [postgres, monetdb, mariadb]
 scripts = ['datatable', 'dplyr', 'pandas', 'julia']
 databases = [dbmodule.dbname() for dbmodule in database_modules]
+systems = scripts + databases
 nruns = 10
+sf = 0.01
 
 queries = [1]#queries = range(1, 11)
 
 # benchmark recipes
 def benchmark_tpch_queries(system, nruns, sf=0.01):
-	global queries
 	tpchdir = tpch.generate_tpch(sf)
 	if system in databases:
 		dbmodule = database_modules[databases.index(system)]
 		dbbench.setup_database(dbmodule)
 		dbbench.load_tpch(dbmodule, tpchdir, False)
-		queries = ['queries/q%02d.sql' % q for q in queries]
-		return dbbench.benchmark_queries(dbmodule, queries, nruns)
+		query_files = ['queries/q%02d.sql' % q for q in queries]
+		return dbbench.benchmark_queries(dbmodule, query_files, nruns)
 	elif system in scripts:
 		os.environ['TPCHDIR'] = tpchdir
 		os.environ['TPCHSF'] = str(sf)
@@ -74,10 +75,41 @@ def benchmark_tpch_write(system, nruns, sf=0.01):
 def benchmark_tpch_load(system, nruns, sf=0.01):
 	return benchmark_tpch_readwrite(system, nruns, 'load', sf)
 
+def write_results(f, system, results):
+	for key in results.keys():
+		file = key
+		timings = results[file]
+		for i in range(len(timings)):
+			f.write(system + ',' + file + "," + str(i) + ',' + str(timings[i]) + '\n')
+	f.flush()
 
-#print(benchmark_tpch_queries('pandas', nruns, 0.01))
-#print(benchmark_tpch_queries('datatable', nruns))
+dirname = 'results-sf%f' % sf
+os.system('mkdir -p "%s"' % dirname)
+benchmark_header = 'System,File,Run,Timing\n'
 
-# print(benchmark_tpch_write('postgres', nruns))
+for dbmodule in database_modules:
+	dbmodule.force_shutdown()
 
-print(benchmark_tpch_load('postgres', nruns, 1))
+for system in systems:
+	fname = os.path.join(dirname, '%s.csv' % system)
+	if os.path.exists(fname): continue
+	results = benchmark_tpch_queries(system, nruns, sf)
+	with open(fname, 'w+') as f:
+		f.write(benchmark_header)
+		write_results(f, system, results)
+
+for system in databases:
+	fname = os.path.join(dirname, '%s-write.csv' % system)
+	if not os.path.exists(fname):
+		results = benchmark_tpch_write(system, nruns, sf)
+		with open(fname, 'w+') as f:
+			f.write(benchmark_header)
+			write_results(f, system, results)
+	fname = os.path.join(dirname, '%s-load.csv' % system)
+	if not os.path.exists(fname):
+		results = benchmark_tpch_load(system, nruns, sf)
+		with open(fname, 'w+') as f:
+			f.write(benchmark_header)
+			write_results(f, system, results)
+
+f.close()

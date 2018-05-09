@@ -155,3 +155,6 @@ def ldflags():
 
 def path():
 	return '${BUILD_DIR}/usr/local/mysql/bin'.replace("${BUILD_DIR}", INSTALLDIR)
+	
+def force_shutdown():
+	os.system('killall -9 mysqld')

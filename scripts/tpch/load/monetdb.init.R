@@ -8,3 +8,4 @@ user <- Sys.getenv('DBINFO_USER')
 password <- Sys.getenv('DBINFO_PASSWORD')
 
 con <- dbConnect(MonetDBLite::MonetDB(), dbname=database, host=host, port=port, user=user, password=password)
+dbWriteTable(con, "lineitem", lineitem, csvdump=TRUE)

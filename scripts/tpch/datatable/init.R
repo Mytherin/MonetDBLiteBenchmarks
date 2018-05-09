@@ -6,14 +6,14 @@ test_dt_q <- list()
 sf <- as.numeric(Sys.getenv('TPCHSF'))
 tbls <- tpchr::dbgen(sf)
 
-lineitem <- tbls$lineitem
-partsupp <- tbls$partsupp
-part <- tbls$part
-supplier <- tbls$supplier
-nation <- tbls$nation
-orders <- tbls$orders
-customer <- tbls$customer
-region <- tbls$region
+lineitem <- data.table(tbls$lineitem)
+partsupp <- data.table(tbls$partsupp)
+part <- data.table(tbls$part)
+supplier <- data.table(tbls$supplier)
+nation <- data.table(tbls$nation)
+orders <- data.table(tbls$orders)
+customer <- data.table(tbls$customer)
+region <- data.table(tbls$region)
 
 test_dt_q[[1]] <- function() {
 	lineitem[

@@ -132,4 +132,4 @@ def path():
 	return '${BUILD_DIR}/bin'.replace("${BUILD_DIR}", INSTALLDIR)
 
 def force_shutdown():
-	os.system('killall -9 postgres')
+	os.system('killall -9 postgres >/dev/null 2>/dev/null')

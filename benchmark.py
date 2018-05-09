@@ -112,4 +112,3 @@ for system in databases:
 			f.write(benchmark_header)
 			write_results(f, system, results)
 
-f.close()

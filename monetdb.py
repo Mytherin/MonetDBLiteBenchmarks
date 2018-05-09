@@ -121,4 +121,4 @@ def path():
 	return '${BUILD_DIR}/bin'.replace("${BUILD_DIR}", INSTALLDIR)
 
 def force_shutdown():
-	os.system('killall -9 mserver5')
+	os.system('killall -9 mserver5 >/dev/null 2>/dev/null')

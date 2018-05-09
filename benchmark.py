@@ -13,9 +13,9 @@ scripts = ['datatable', 'dplyr', 'pandas', 'julia']
 databases = [dbmodule.dbname() for dbmodule in database_modules]
 systems = scripts + databases
 nruns = 10
-sf = 0.01
+sf = 10
 
-queries = [1]#queries = range(1, 11)
+queries = queries = range(1, 11)
 
 # benchmark recipes
 def benchmark_tpch_queries(system, nruns, sf=0.01):

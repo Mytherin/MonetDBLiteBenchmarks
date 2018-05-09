@@ -22,7 +22,7 @@ function q1()
 		avg_price      = mean(df[:l_extendedprice]),
 		avg_disc       = mean(df[:l_discount]),
 		count_order    = nrow(df)
-	)), cols=[:l_returnflag, :l_linestatus])
+	)), [:l_returnflag, :l_linestatus])
 	gc_enable(true)
 	res
 end
@@ -38,8 +38,8 @@ function q2()
 	pspsnr = join(psps, nr, on = :s_nationkey => :n_nationkey)[[:ps_partkey, :ps_supplycost, :p_mfgr, :n_name, :s_acctbal, :s_name, :s_address, :s_phone, :s_comment]]
 	aggr   = by(pspsnr, :ps_partkey, df -> DataFrame(ps_supplycost = minimum(df[:ps_supplycost])))
 	sj     = join(pspsnr, aggr, on = [:ps_partkey, :ps_supplycost])
-	res    = head(sort(sj[[:s_acctbal, :s_name, :n_name, :ps_partkey, :p_mfgr, :s_address, :s_phone, :s_comment]], 
-		cols=[order(:s_acctbal, rev=true), :n_name, :s_name, :ps_partkey]), 100)
+	res    = head(sort!(sj[[:s_acctbal, :s_name, :n_name, :ps_partkey, :p_mfgr, :s_address, :s_phone, :s_comment]], 
+		[order(:s_acctbal, rev=true), :n_name, :s_name, :ps_partkey]), 100)
 	gc_enable(true)
 	res
 end
@@ -54,8 +54,8 @@ function q3()
 	aggr = by(loc, [:o_orderkey, :o_orderdate, :o_shippriority], df -> DataFrame(
 		revenue = sum(df[:l_extendedprice] .* (1 - df[:l_discount]))
 	))
-	res  = head(sort(aggr[[:o_orderkey, :revenue, :o_orderdate, :o_shippriority]], 
-		cols=[order(:revenue, rev=true), :o_orderkey]), 10)
+	res  = head(sort!(aggr[[:o_orderkey, :revenue, :o_orderdate, :o_shippriority]], 
+		[order(:revenue, rev=true), :o_orderkey]), 10)
 	gc_enable(true)
 	res
 end
@@ -66,7 +66,7 @@ function q4()
 	o   = orders[(orders[:o_orderdate] .>= Date("1993-07-01")) .& 
 		(orders[:o_orderdate] .< Date("1993-10-01")) , [:o_orderkey, :o_orderpriority]]
 	lo  = unique(join(o, l, on = :o_orderkey => :l_orderkey))[[:o_orderpriority]]
-	res = sort(by(lo, :o_orderpriority, df -> DataFrame(order_count=nrow(df))), cols=[:o_orderpriority])
+	res = sort!(by(lo, :o_orderpriority, df -> DataFrame(order_count=nrow(df))), [:o_orderpriority])
 	gc_enable(true)
 	res
 end
@@ -81,9 +81,9 @@ function q5()
 		(orders[:o_orderdate] .< Date("1995-01-01")), [:o_orderkey, :o_custkey]]
 	oc = join(o, customer[[:c_custkey, "c_nationkey"]], on = :o_custkey => :c_custkey)[[:o_orderkey, :c_nationkey]]
 	lsnroc = join(oc, lsnr, on = [:o_orderkey => :l_orderkey, :c_nationkey => :s_nationkey])[[:l_extendedprice, :l_discount, :n_name]]
-	res = sort(by(lsnroc, :n_name, df -> DataFrame(
+	res = sort!(by(lsnroc, :n_name, df -> DataFrame(
 		revenue = sum(df[:l_extendedprice] .* (1 - df[:l_discount]))
-	)), cols=[order(:revenue, rev=true)])
+	)), [order(:revenue, rev=true)])
 	gc_enable(true)
 	res
 end
@@ -116,9 +116,9 @@ function q7()
 		((cnolsn[:n1_name] .== "GERMANY") .& 
 			(cnolsn[:n2_name] .== "FRANCE")), :]
 	cnolsnf[:l_year] = map(x -> Dates.year(x), cnolsnf[:l_shipdate])
-	res = sort(by(cnolsnf, [:n1_name, :n2_name, :l_year],  df -> DataFrame(
+	res = sort!(by(cnolsnf, [:n1_name, :n2_name, :l_year],  df -> DataFrame(
 		revenue = sum(df[:l_extendedprice] .* (1 - df[:l_discount]))
-	)), cols=[:n1_name, :n2_name, :l_year])
+	)), [:n1_name, :n2_name, :l_year])
 	gc_enable(true)
 	res
 end
@@ -140,10 +140,10 @@ function q8()
 	locnrpsn[:o_year] = map(x -> Dates.year(x), locnrpsn[:o_orderdate])
 	locnrpsn[:volume] = locnrpsn[:l_extendedprice] .* (1 - locnrpsn[:l_discount])
 
-	res = sort(by(locnrpsn, :o_year, df -> DataFrame(
+	res = sort!(by(locnrpsn, :o_year, df -> DataFrame(
 		mkt_share = sum(ifelse.(df[:n_name] .== "BRAZIL", df[:volume], 0)) / 
 			sum(df[:volume])
-	)), cols=:o_year)
+	)), :o_year)
 	gc_enable(true)
 	res
 end
@@ -161,9 +161,9 @@ function q9()
 	lpspsno[:o_year] = map(x -> Dates.year(x), lpspsno[:o_orderdate])
 	lpspsno[:amount] = lpspsno[:l_extendedprice] .* (1 .- lpspsno[:l_discount]) .- 
 		lpspsno[:ps_supplycost] .* lpspsno[:l_quantity]
-	res = sort(by(lpspsno[[:n_name, :o_year, :amount]], [:n_name, :o_year], df -> DataFrame(
+	res = sort!(by(lpspsno[[:n_name, :o_year, :amount]], [:n_name, :o_year], df -> DataFrame(
 		sum_profit = sum(df[:amount])
-	)), cols = [:n_name, order(:o_year, rev = true)])
+	)), [:n_name, order(:o_year, rev = true)])
 	gc_enable(true)
 	res
 end
@@ -179,7 +179,7 @@ function q10()
 	c = customer[[:c_custkey, :c_nationkey, :c_name, :c_acctbal, :c_phone, :c_address, :c_comment]]
 	loc = join(lo_aggr, c, on = :o_custkey => :c_custkey)
 	locn = join(loc, nation[[:n_nationkey, :n_name]], on = :c_nationkey => :n_nationkey)
-	res = head(sort(locn[[:o_custkey, :c_name, :revenue, :c_acctbal, :n_name, :c_address, :c_phone, :c_comment]], cols = order(:revenue, rev = true)), 20)
+	res = head(sort!(locn[[:o_custkey, :c_name, :revenue, :c_acctbal, :n_name, :c_address, :c_phone, :c_comment]], order(:revenue, rev = true)), 20)
 	gc_enable(true)
 	res
 end

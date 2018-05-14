@@ -22,7 +22,7 @@ MONETDBLITE_DBDIR = os.path.join(os.getcwd(), 'monetdblite-data')
 # benchmark recipes
 def benchmark_tpch_queries(system, nruns, sf=0.01):
 	tpchdir = tpch.generate_tpch(sf)
-	if system == 'monetdblite:
+	if system == 'monetdblite':
 		os.system('rm -rf ' + MONETDBLITE_DBDIR)
 		os.environ['MONETDBLITE_DBDIR'] = MONETDBLITE_DBDIR
 
@@ -58,7 +58,7 @@ def benchmark_tpch_queries(system, nruns, sf=0.01):
 def benchmark_tpch_readwrite(system, nruns, operation, sf):
 	tpchdir = tpch.generate_tpch(sf)
 	os.environ['TPCHSF'] = str(sf)
-	if system == 'monetdblite:
+	if system == 'monetdblite':
 		os.system('rm -rf ' + MONETDBLITE_DBDIR)
 		os.environ['MONETDBLITE_DBDIR'] = MONETDBLITE_DBDIR
 
@@ -66,7 +66,7 @@ def benchmark_tpch_readwrite(system, nruns, operation, sf):
 		dbmodule = database_modules[databases.index(system)]
 		dbbench.setup_database(dbmodule)
 		dbmodule.start_database()
-		
+
 		coninfo = dbmodule.get_connection_parameters()
 		for entry in coninfo.keys():
 			os.environ['DBINFO_' + entry.upper()] = coninfo[entry]

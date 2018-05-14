@@ -9,7 +9,7 @@ import scriptbench
 import dbbench
 
 database_modules = [postgres, monetdb, mariadb]
-scripts = ['datatable', 'dplyr', 'pandas', 'julia']
+scripts = ['datatable', 'dplyr', 'pandas', 'julia', 'monetdblite']
 databases = [dbmodule.dbname() for dbmodule in database_modules]
 systems = scripts + databases
 nruns = 10
@@ -98,7 +98,7 @@ for system in systems:
 		f.write(benchmark_header)
 		write_results(f, system, results)
 
-for system in databases:
+for system in databases + ['monetdblite']:
 	fname = os.path.join(dirname, '%s-write.csv' % system)
 	if not os.path.exists(fname):
 		results = benchmark_tpch_write(system, nruns, sf)

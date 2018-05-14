@@ -13,13 +13,19 @@ scripts = ['datatable', 'dplyr', 'pandas', 'julia', 'monetdblite']
 databases = [dbmodule.dbname() for dbmodule in database_modules]
 systems = scripts + databases
 nruns = 10
-sf = 10
+sf = 1
 
 queries = queries = range(1, 11)
+
+MONETDBLITE_DBDIR = os.path.join(os.getcwd(), 'monetdblite-data')
 
 # benchmark recipes
 def benchmark_tpch_queries(system, nruns, sf=0.01):
 	tpchdir = tpch.generate_tpch(sf)
+	if system == 'monetdblite:
+		os.system('rm -rf ' + MONETDBLITE_DBDIR)
+		os.environ['MONETDBLITE_DBDIR'] = MONETDBLITE_DBDIR
+
 	if system in databases:
 		dbmodule = database_modules[databases.index(system)]
 		dbbench.setup_database(dbmodule)
@@ -52,11 +58,15 @@ def benchmark_tpch_queries(system, nruns, sf=0.01):
 def benchmark_tpch_readwrite(system, nruns, operation, sf):
 	tpchdir = tpch.generate_tpch(sf)
 	os.environ['TPCHSF'] = str(sf)
+	if system == 'monetdblite:
+		os.system('rm -rf ' + MONETDBLITE_DBDIR)
+		os.environ['MONETDBLITE_DBDIR'] = MONETDBLITE_DBDIR
+
 	if system in databases:
 		dbmodule = database_modules[databases.index(system)]
 		dbbench.setup_database(dbmodule)
 		dbmodule.start_database()
-
+		
 		coninfo = dbmodule.get_connection_parameters()
 		for entry in coninfo.keys():
 			os.environ['DBINFO_' + entry.upper()] = coninfo[entry]
@@ -65,6 +75,12 @@ def benchmark_tpch_readwrite(system, nruns, operation, sf):
 		final_scripts = ['scripts/tpch/%s/%s.final.R' % (operation, system)]
 		results = scriptbench.run_script(scriptbench.R, init_scripts, bench_scripts, final_scripts, nruns, False)
 		dbmodule.stop_database()
+		return results
+	elif system == 'monetdblite':
+		init_scripts = ['scripts/tpch/%s/init.R' % (operation,), 'scripts/tpch/%s/%s.init.R'  % (operation, system)]
+		bench_scripts = ['scripts/tpch/%s/%s.run.R' % (operation, system)]
+		final_scripts = ['scripts/tpch/%s/%s.final.R' % (operation, system)]
+		results = scriptbench.run_script(scriptbench.R, init_scripts, bench_scripts, final_scripts, nruns, False)
 		return results
 	else:
 		raise Exception("Unrecognized system %s" % (system,))

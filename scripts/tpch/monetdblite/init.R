@@ -2,7 +2,7 @@ library(DBI)
 library(MonetDBLite)
 library(tpchr)
 
-dbdir <- tempdir()
+dbdir <- Sys.getenv('MONETDBLITE_DBDIR')
 con <- dbConnect(MonetDBLite::MonetDBLite())
 
 sf <- as.numeric(Sys.getenv('TPCHSF'))

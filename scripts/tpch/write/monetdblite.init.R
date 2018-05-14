@@ -1,5 +1,5 @@
 
 library(MonetDBLite)
 
-dbdir <- tempdir()
+dbdir <- Sys.getenv('MONETDBLITE_DBDIR')
 con <- dbConnect(MonetDBLite::MonetDBLite())

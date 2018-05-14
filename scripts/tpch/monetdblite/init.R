@@ -10,5 +10,5 @@ tbls <- tpchr::dbgen(sf)
 lapply(names(tbls), function(n) {dbWriteTable(con, n, tbls[[n]])})
 
 run_query <- function(i) {
-  dbQuery(con, tpchr:::get_query(i))
+  dbGetQuery(con, tpchr:::get_query(i))
 }

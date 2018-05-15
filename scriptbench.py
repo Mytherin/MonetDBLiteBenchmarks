@@ -79,23 +79,31 @@ def run_script(lang, init_script, bench_scripts, final_scripts, nruns, TIMEOUT=6
         indices = []
         header = True
         if os.path.exists(RESULT_FILE):
-            with open(RESULT_FILE, 'r') as f:
-                for line in f:
-                    line = line.rstrip('\n')
-                    entries = line.split(',')
-                    if header:
-                        indices = entries
-                        header = False
-                    else:
-                        index = 0
-                        for entry in entries:
-                            if indices[index] != 'id':
-                                timings[indices[index]].append(float(entry))
-                            index += 1
-            os.remove(RESULT_FILE)
-        else:
-            for i in nruns:
-                timings[benchmark_script] = [-1] * nruns
+            try:
+                with open(RESULT_FILE, 'r') as f:
+                    for line in f:
+                        line = line.rstrip('\n')
+                        entries = line.split(',')
+                        if header:
+                            indices = entries
+                            header = False
+                        else:
+                            index = 0
+                            for entry in entries:
+                                if indices[index] != 'id':
+                                    timings[indices[index]].append(float(entry))
+                                index += 1
+                for entry in indices:
+                    if entry != 'id':
+                        if len(timings[entry]) != nruns:
+                            raise Exception('Did not complete nruns!')
+                os.remove(RESULT_FILE)
+                print('[SCRIPT] Run successful')
+                continue
+            except:
+                os.remove(RESULT_FILE)
+        print('[SCRIPT] TIMEOUT')
+        timings[benchmark_script] = [-1] * nruns
 
     del os.environ[INITFILE_PARAM]
     del os.environ[NRUNS_PARAM]

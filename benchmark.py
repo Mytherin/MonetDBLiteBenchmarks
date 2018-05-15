@@ -12,8 +12,8 @@ database_modules = [postgres, monetdb, mariadb]
 scripts = ['datatable', 'dplyr', 'pandas', 'julia', 'monetdblite', 'sqlite']
 databases = [dbmodule.dbname() for dbmodule in database_modules]
 systems = scripts + databases
-nruns = 3
-sf = 1
+nruns = 2
+sf = 0.01
 TIMEOUT = 60
 
 queries = queries = range(1, 11)

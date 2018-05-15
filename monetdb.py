@@ -10,7 +10,7 @@ MONETDB_VERSION = '11.29.3'
 CURRENTDIR = os.getcwd()
 INSTALLDIR = os.path.join(CURRENTDIR, 'monetdb-build-${VERSION}'.replace('${VERSION}', MONETDB_VERSION))
 DBDIR=os.path.join(INSTALLDIR, 'var/monetdb5/dbfarm/demo')
-
+STARTUP_PARAMETERS = '--daemon=yes --set gdk_nr_threads=1'
 
 FNULL = open(os.devnull, 'w')
 
@@ -68,7 +68,7 @@ def execute_file(fpath, SILENT=True):
 
 def start_database(SILENT=True):
 	global DBPROCESS
-	process_path = ["${BUILD_DIR}/bin/mserver5".replace("${BUILD_DIR}", INSTALLDIR), "--daemon=yes"]
+	process_path = ["${BUILD_DIR}/bin/mserver5".replace("${BUILD_DIR}", INSTALLDIR)] + STARTUP_PARAMETERS.split(' ')
 	if SILENT:
 		DBPROCESS = subprocess.Popen(process_path, stdout=FNULL, stderr=subprocess.STDOUT)
 	else:

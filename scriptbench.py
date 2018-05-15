@@ -32,7 +32,6 @@ def run_script(lang, init_script, bench_scripts, final_scripts, nruns, TIMEOUT=6
 
     os.environ[INITFILE_PARAM] = ','.join(init_script)
     os.environ[NRUNS_PARAM] = str(nruns)
-    os.environ[TIMEOUT_PARAM] = str(TIMEOUT)
 
     timings = {}
     for entry in bench_scripts:
@@ -63,12 +62,16 @@ def run_script(lang, init_script, bench_scripts, final_scripts, nruns, TIMEOUT=6
         while True:
             if not os.path.exists(START_EXPERIMENTS_FILE):
                 time.sleep(1)
+                if proc.poll() != None:
+                    break
+            else:
+                break
 
         # experiments started
         def wait_for_process():
             proc.communicate()
 
-        thread = threading.Thread(Target=wait_for_process)
+        thread = threading.Thread(target=wait_for_process)
         thread.start()
         thread.join(TIMEOUT * nruns)
 

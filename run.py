@@ -24,6 +24,10 @@ for tf in timefiles:
 		end = time.time()
 		if j != 0:
 			results[tf].append(end - start)
+		else:
+			with open('start_experiments.csv', 'w+') as f:
+				f.write("lala")
+
 
 with open('tmp_results.csv', 'w+') as f:
 	keys = results.keys()

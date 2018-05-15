@@ -3,6 +3,7 @@
 import os
 import subprocess
 import threading
+import time
 
 INITFILE_PARAM = 'INITFILE'
 TIMEFILE_PARAM = 'TIMEFILE'
@@ -10,34 +11,13 @@ FINALFILE_PARAM = 'FINALFILE'
 NRUNS_PARAM = 'NRUNS'
 
 RESULT_FILE = 'tmp_results.csv'
+START_EXPERIMENTS_FILE = 'start_experiments.csv'
 
 R = 1
 Julia = 2
 Python = 3
 
 FNULL = open(os.devnull, 'w')
-
-class Command(object):
-    def __init__(self, cmd, silent):
-        self.cmd = cmd
-        self.process = None
-        self.silent = silent
-
-    def run(self, timeout):
-        def target():
-            if self.silent:
-                self.process = subprocess.Popen(self.cmd, stdout=FNULL, stderr=subprocess.STDOUT, shell=True)
-            else:
-                self.process = subprocess.Popen(self.cmd, shell=True)
-            self.process.communicate()
-
-        thread = threading.Thread(target=target)
-        thread.start()
-
-        thread.join(timeout)
-        if thread.is_alive():
-            self.process.terminate()
-            thread.join()
 
 def init(SILENT=True):
     pipe = ">/dev/null 2>/dev/null" if SILENT else ""
@@ -52,6 +32,8 @@ def run_script(lang, init_script, bench_scripts, final_scripts, nruns, TIMEOUT=6
 
     os.environ[INITFILE_PARAM] = ','.join(init_script)
     os.environ[NRUNS_PARAM] = str(nruns)
+    os.environ[TIMEOUT_PARAM] = str(TIMEOUT)
+
     timings = {}
     for entry in bench_scripts:
         timings[entry] = []
@@ -62,17 +44,38 @@ def run_script(lang, init_script, bench_scripts, final_scripts, nruns, TIMEOUT=6
         os.environ[FINALFILE_PARAM] = '' if len(final_scripts) == 0 else final_scripts[i]
         print("[SCRIPT] Running program %s" % (benchmark_script))
         if lang == Julia:
-            params = ['julia', 'run.jl']
+            process_path = ['julia', 'run.jl']
         elif lang == R:
-            params = ['R', '-f', 'run.R']
+            process_path = ['R', '-f', 'run.R']
         elif lang == Python:
-            params = ['python', 'run.py']
+            process_path = ['python', 'run.py']
         else:
             raise Exception("Unrecognized language \"%s\"" % (str(lang)))
 
-        command = Command(params, SILENT)
-        command.run(timeout = TIMEOUT * (nruns + 1))
+        if os.path.exists(START_EXPERIMENTS_FILE):
+            os.remove(START_EXPERIMENTS_FILE)
 
+        if SILENT:
+            proc = subprocess.Popen(process_path, stdout=FNULL, stderr=subprocess.STDOUT)
+        else:
+            proc = subprocess.Popen(process_path)
+
+        while True:
+            if not os.path.exists(START_EXPERIMENTS_FILE):
+                time.sleep(1)
+
+        # experiments started
+        def wait_for_process():
+            proc.communicate()
+
+        thread = threading.Thread(Target=wait_for_process)
+        thread.start()
+        thread.join(TIMEOUT * nruns)
+
+        if thread.is_alive():
+            # timeout in subprocess
+            proc.terminate()
+            thread.join()
 
         del os.environ[TIMEFILE_PARAM]
         del os.environ[FINALFILE_PARAM]

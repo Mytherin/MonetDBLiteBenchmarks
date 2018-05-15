@@ -107,7 +107,7 @@ def write_results(f, system, results):
 			f.write(system + ',' + file + "," + str(i) + ',' + str(timings[i]) + '\n')
 	f.flush()
 
-dirname = 'results-sf%f' % sf
+dirname = 'results-sf%s' % str(sf).rstrip('0').rstrip('.')
 os.system('mkdir -p "%s"' % dirname)
 benchmark_header = 'System,File,Run,Timing\n'
 

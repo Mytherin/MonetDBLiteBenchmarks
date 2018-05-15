@@ -12,25 +12,21 @@ database_modules = [postgres, monetdb, mariadb]
 scripts = ['datatable', 'dplyr', 'pandas', 'julia', 'monetdblite', 'sqlite']
 databases = [dbmodule.dbname() for dbmodule in database_modules]
 systems = scripts + databases
-nruns = 2
-sf = 0.01
-TIMEOUT = 60
+nruns = 3
+sf = 1
+TIMEOUT = 300
 
 queries = queries = range(1, 11)
 
 MONETDBLITE_DBDIR = os.path.join(os.getcwd(), 'monetdblite-data')
 SQLITE_DBDIR = os.path.join(os.getcwd(), 'sqlite-data')
 
+os.environ['MONETDBLITE_DBDIR'] = MONETDBLITE_DBDIR
+os.environ['SQLITE_DBDIR'] = SQLITE_DBDIR
+
 # benchmark recipes
 def benchmark_tpch_queries(system, nruns, sf=0.01):
 	tpchdir = tpch.generate_tpch(sf)
-	if system == 'monetdblite':
-		os.system('rm -rf ' + MONETDBLITE_DBDIR)
-		os.environ['MONETDBLITE_DBDIR'] = MONETDBLITE_DBDIR
-	if system == 'sqlite':
-		os.system('rm -rf ' + SQLITE_DBDIR)
-		os.environ['MONETDBLITE_DBDIR'] = SQLITE_DBDIR
-
 	if system in databases:
 		dbmodule = database_modules[databases.index(system)]
 		dbbench.setup_database(dbmodule)
@@ -63,13 +59,6 @@ def benchmark_tpch_queries(system, nruns, sf=0.01):
 def benchmark_tpch_readwrite(system, nruns, operation, sf):
 	tpchdir = tpch.generate_tpch(sf)
 	os.environ['TPCHSF'] = str(sf)
-	if system == 'monetdblite':
-		os.system('rm -rf ' + MONETDBLITE_DBDIR)
-		os.environ['MONETDBLITE_DBDIR'] = MONETDBLITE_DBDIR
-	if system == 'sqlite':
-		os.system('rm -rf ' + SQLITE_DBDIR)
-		os.environ['MONETDBLITE_DBDIR'] = SQLITE_DBDIR
-
 	if system in databases:
 		dbmodule = database_modules[databases.index(system)]
 		dbbench.setup_database(dbmodule)

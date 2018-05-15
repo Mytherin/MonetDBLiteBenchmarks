@@ -42,6 +42,12 @@ def run_script(lang, init_script, bench_scripts, final_scripts, nruns, TIMEOUT=6
         os.environ[TIMEFILE_PARAM] = benchmark_script
         os.environ[FINALFILE_PARAM] = '' if len(final_scripts) == 0 else final_scripts[i]
         print("[SCRIPT] Running program %s" % (benchmark_script))
+
+        if 'MONETDBLITE_DBDIR' in os.environ:
+            os.system('rm -rf ' + os.environ['MONETDBLITE_DBDIR'])
+        if 'SQLITE_DBDIR' in os.environ:
+            os.system('rm -rf ' + os.environ['SQLITE_DBDIR'])
+
         if lang == Julia:
             process_path = ['julia', 'run.jl']
         elif lang == R:
@@ -75,8 +81,10 @@ def run_script(lang, init_script, bench_scripts, final_scripts, nruns, TIMEOUT=6
         thread.start()
         thread.join(TIMEOUT * nruns)
 
+        ran_into_timeout = False
         if thread.is_alive():
             # timeout in subprocess
+            ran_into_timeout = True
             proc.terminate()
             thread.join()
 
@@ -108,8 +116,12 @@ def run_script(lang, init_script, bench_scripts, final_scripts, nruns, TIMEOUT=6
                 continue
             except:
                 os.remove(RESULT_FILE)
-        print('[SCRIPT] TIMEOUT')
-        timings[benchmark_script] = [-1] * nruns
+        if ran_into_timeout:
+            print('[SCRIPT] TIMEOUT')
+            timings[benchmark_script] = [-1] * nruns
+        else:
+            print('[SCRIPT] ERROR IN SCRIPT')
+            timings[benchmark_script] = [-2] * nruns
 
     del os.environ[INITFILE_PARAM]
     del os.environ[NRUNS_PARAM]

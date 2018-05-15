@@ -12,8 +12,9 @@ database_modules = [postgres, monetdb, mariadb]
 scripts = ['datatable', 'dplyr', 'pandas', 'julia', 'monetdblite', 'sqlite']
 databases = [dbmodule.dbname() for dbmodule in database_modules]
 systems = scripts + databases
-nruns = 10
+nruns = 3
 sf = 1
+TIMEOUT = 60
 
 queries = queries = range(1, 11)
 
@@ -54,7 +55,7 @@ def benchmark_tpch_queries(system, nruns, sf=0.01):
 		bench_scripts = ['scripts/tpch/%s/q%02d.%s' % (system, q, ext) for q in queries]
 		print(init_script)
 		print(bench_scripts)
-		return scriptbench.run_script(lang, [init_script], bench_scripts, [], nruns)
+		return scriptbench.run_script(lang, [init_script], bench_scripts, [], nruns, TIMEOUT)
 	else:
 		raise Exception("Unrecognized system %s" % (system,))
 
@@ -80,14 +81,14 @@ def benchmark_tpch_readwrite(system, nruns, operation, sf):
 		init_scripts = ['scripts/tpch/%s/init.R' % (operation,), 'scripts/tpch/%s/%s.init.R'  % (operation, system)]
 		bench_scripts = ['scripts/tpch/%s/%s.run.R' % (operation, system)]
 		final_scripts = ['scripts/tpch/%s/%s.final.R' % (operation, system)]
-		results = scriptbench.run_script(scriptbench.R, init_scripts, bench_scripts, final_scripts, nruns, False)
+		results = scriptbench.run_script(scriptbench.R, init_scripts, bench_scripts, final_scripts, nruns, TIMEOUT)
 		dbmodule.stop_database()
 		return results
 	elif system == 'monetdblite' or system == 'sqlite':
 		init_scripts = ['scripts/tpch/%s/init.R' % (operation,), 'scripts/tpch/%s/%s.init.R'  % (operation, system)]
 		bench_scripts = ['scripts/tpch/%s/%s.run.R' % (operation, system)]
 		final_scripts = ['scripts/tpch/%s/%s.final.R' % (operation, system)]
-		results = scriptbench.run_script(scriptbench.R, init_scripts, bench_scripts, final_scripts, nruns, False)
+		results = scriptbench.run_script(scriptbench.R, init_scripts, bench_scripts, final_scripts, nruns, TIMEOUT)
 		return results
 	else:
 		raise Exception("Unrecognized system %s" % (system,))

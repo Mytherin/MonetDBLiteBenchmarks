@@ -24,6 +24,7 @@ SQLITE_DBDIR = os.path.join(os.getcwd(), 'sqlite-data')
 os.environ['MONETDBLITE_DBDIR'] = MONETDBLITE_DBDIR
 os.environ['SQLITE_DBDIR'] = SQLITE_DBDIR
 
+
 # benchmark recipes
 def benchmark_tpch_queries(system, nruns, sf=0.01):
 	tpchdir = tpch.generate_tpch(sf)
@@ -34,6 +35,9 @@ def benchmark_tpch_queries(system, nruns, sf=0.01):
 		query_files = ['queries/q%02d.sql' % q for q in queries]
 		return dbbench.benchmark_queries(dbmodule, query_files, nruns)
 	elif system in scripts:
+		if system == 'monetdblite': dbbench.generate_load_file('monetdb', tpchdir)
+		if system == 'sqlite': dbbench.generate_load_file('sqlite', tpchdir)
+		
 		os.environ['TPCHDIR'] = tpchdir
 		os.environ['TPCHSF'] = str(sf)
 		#scriptbench.init()

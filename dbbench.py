@@ -3,18 +3,24 @@
 import os
 import time
 
-def load_tpch(dbmodule, tpchdir, SILENT=True):
-	dbmodule.start_database()
-	dbname = dbmodule.dbname()
+def generate_load_file(dbname, tpchdir):
 	CURRENTDIR = os.getcwd()
 	os.chdir('scripts/tpch/${DBNAME}'.replace('${DBNAME}', dbname))
-	print("[${DBNAME}] Creating schema".replace('${DBNAME}', dbname.upper()))
-	dbmodule.execute_file('schema.sql', SILENT)
 	with open('load.sql', 'r') as f:
 		data = f.read()
 		data = data.replace('DIR', tpchdir)
 	with open('load.sql.tmp', 'w') as f:
 		f.write(data)
+	os.chdir(CURRENTDIR)
+
+def load_tpch(dbmodule, tpchdir, SILENT=True):
+	dbmodule.start_database()
+	dbname = dbmodule.dbname()
+	generate_load_file(dbname, tpchdir)
+	CURRENTDIR = os.getcwd()
+	os.chdir('scripts/tpch/${DBNAME}'.replace('${DBNAME}', dbname))
+	print("[${DBNAME}] Creating schema".replace('${DBNAME}', dbname.upper()))
+	dbmodule.execute_file('schema.sql', SILENT)
 	print("[${DBNAME}] Loading TPCH".replace('${DBNAME}', dbname.upper()))
 	dbmodule.execute_file('load.sql.tmp', SILENT)
 	os.system('rm load.sql.tmp')

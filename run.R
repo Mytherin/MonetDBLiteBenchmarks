@@ -24,9 +24,8 @@ if (length(finalfiles) > 0) {
 	}
 }
 
-write.csv(df, 'start_experiments.csv', quote=FALSE, row.names = FALSE)
-
 df <- data.frame(id=as.integer(1:nruns))
+write.csv(df, 'start_experiments.csv', quote=FALSE, row.names = FALSE)
 for(j in 1:length(timefiles)) {
 	timefile = timefiles[j]
 	results <- numeric(nruns)

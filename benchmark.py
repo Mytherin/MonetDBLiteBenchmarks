@@ -111,7 +111,7 @@ for system in systems:
 		f.write(benchmark_header)
 		write_results(f, system, results)
 
-for system in databases + ['monetdblite']:
+for system in databases + ['monetdblite', 'sqlite']:
 	fname = os.path.join(dirname, '%s-write.csv' % system)
 	if not os.path.exists(fname):
 		results = benchmark_tpch_write(system, nruns, sf)

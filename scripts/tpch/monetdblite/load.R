@@ -13,7 +13,6 @@ run_statement <- function(statement) {
 
 run_file <- function(fname) {
 	statements <- head(strsplit(read_file(fname), ';')[[1]], -1)
-	print(statements)
 	lapply(statements, run_statement)
 }
 

@@ -24,7 +24,6 @@ SQLITE_DBDIR = os.path.join(os.getcwd(), 'sqlite-data')
 os.environ['MONETDBLITE_DBDIR'] = MONETDBLITE_DBDIR
 os.environ['SQLITE_DBDIR'] = SQLITE_DBDIR
 
-
 # benchmark recipes
 def benchmark_tpch_queries(system, nruns, sf=0.01):
 	tpchdir = tpch.generate_tpch(sf)

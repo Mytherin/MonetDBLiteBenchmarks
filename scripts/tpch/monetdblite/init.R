@@ -30,6 +30,8 @@ ALTER TABLE lineitem ADD CONSTRAINT lineitem_suppkey     FOREIGN KEY (l_suppkey)
 ALTER TABLE lineitem ADD CONSTRAINT lineitem_partsuppkey FOREIGN KEY (l_partkey,l_suppkey)     REFERENCES partsupp (ps_partkey,ps_suppkey) ;
 ")
 
+rm(tbls)
+
 run_query <- function(i) {
   dbGetQuery(con, tpchr:::get_query(i))
 }

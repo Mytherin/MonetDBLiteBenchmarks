@@ -16,6 +16,10 @@ if isfile(initfile)
 	include(initfile)
 end
 
+open("start_experiments.csv", "w+") do f
+	write(f, "lala")
+end
+
 df = Dict()
 for i = 1:length(timefiles)
 	timefile = timefiles[i]
@@ -26,10 +30,6 @@ for i = 1:length(timefiles)
 		res = toc() 
 		if j > 1
 			results[j - 1] = res
-		else
-			open("start_experiments.csv", "w+") do f
-				write(f, "lala")
-			end
 		end
 	end
 	df[timefile] = results

@@ -116,6 +116,19 @@ sf <- as.numeric(Sys.getenv('TPCHSF'))
 tbls <- tpchr::dbgen(sf)
 lapply(names(tbls), function(n) {dbWriteTable(con, n, tbls[[n]], append=TRUE)})
 
+rm(tbls)
+
+dbGetQuery(con, "
+  ANALYZE lineitem;
+  ANALYZE orders;
+  ANALYZE customer;
+  ANALYZE partsupp;
+  ANALYZE supplier;
+  ANALYZE part;
+  ANALYZE region;
+  ANALYZE nation;
+")
+
 run_query <- function(i) {
   dbGetQuery(con, tpchr:::get_query(i))
 }

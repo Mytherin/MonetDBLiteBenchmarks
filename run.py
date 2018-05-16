@@ -14,6 +14,9 @@ if os.path.isfile(initfile):
 	exec(open(initfile).read(), globals())
 
 
+with open('start_experiments.csv', 'w+') as f:
+	f.write("lala")
+
 results = {}
 for tf in timefiles:
 	results[tf] = []
@@ -24,9 +27,6 @@ for tf in timefiles:
 		end = time.time()
 		if j != 0:
 			results[tf].append(end - start)
-		else:
-			with open('start_experiments.csv', 'w+') as f:
-				f.write("lala")
 
 
 with open('tmp_results.csv', 'w+') as f:

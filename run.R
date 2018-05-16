@@ -24,6 +24,8 @@ if (length(finalfiles) > 0) {
 	}
 }
 
+write.csv(df, 'start_experiments.csv', quote=FALSE, row.names = FALSE)
+
 df <- data.frame(id=as.integer(1:nruns))
 for(j in 1:length(timefiles)) {
 	timefile = timefiles[j]
@@ -33,7 +35,6 @@ for(j in 1:length(timefiles)) {
 			results[i - 1] <- system.time(source(timefile))[3]
 		} else {
 			source(timefile)
-			write.csv(df, 'start_experiments.csv', quote=FALSE, row.names = FALSE)
 		}
 		if (length(finalfiles) > 0) {
 			source(finalfiles[j])

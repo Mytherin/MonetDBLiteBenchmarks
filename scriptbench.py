@@ -79,7 +79,7 @@ def run_script(lang, init_script, bench_scripts, final_scripts, nruns, TIMEOUT=6
 
         thread = threading.Thread(target=wait_for_process)
         thread.start()
-        thread.join(TIMEOUT * nruns)
+        thread.join(TIMEOUT * (nruns + 1))
 
         ran_into_timeout = False
         if thread.is_alive():

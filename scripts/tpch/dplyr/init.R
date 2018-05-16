@@ -15,6 +15,8 @@ orders <- tbls$orders
 customer <- tbls$customer
 region <- tbls$region
 
+rm(tbls)
+
 test_dplyr_q[[1]] <- function() {
   lineitem %>%
     select(l_shipdate, l_returnflag, l_linestatus, l_quantity, 

@@ -15,6 +15,8 @@ orders <- data.table(tbls$orders)
 customer <- data.table(tbls$customer)
 region <- data.table(tbls$region)
 
+rm(tbls)
+
 test_dt_q[[1]] <- function() {
 	lineitem[
 	l_shipdate <= "1998-09-02", .(

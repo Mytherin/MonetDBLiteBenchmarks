@@ -43,11 +43,6 @@ def run_script(lang, init_script, bench_scripts, final_scripts, nruns, TIMEOUT=6
         os.environ[FINALFILE_PARAM] = '' if len(final_scripts) == 0 else final_scripts[i]
         print("[SCRIPT] Running program %s" % (benchmark_script))
 
-        if 'MONETDBLITE_DBDIR' in os.environ:
-            os.system('rm -rf ' + os.environ['MONETDBLITE_DBDIR'])
-        if 'SQLITE_DBDIR' in os.environ:
-            os.system('rm -rf ' + os.environ['SQLITE_DBDIR'])
-
         if lang == Julia:
             process_path = ['julia', 'run.jl']
         elif lang == R:

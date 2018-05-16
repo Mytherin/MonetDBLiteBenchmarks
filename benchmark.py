@@ -35,9 +35,18 @@ def benchmark_tpch_queries(system, nruns, sf=0.01):
 		query_files = ['queries/q%02d.sql' % q for q in queries]
 		return dbbench.benchmark_queries(dbmodule, query_files, nruns)
 	elif system in scripts:
-		if system == 'monetdblite': dbbench.generate_load_file('monetdb', tpchdir)
-		if system == 'sqlite': dbbench.generate_load_file('sqlite', tpchdir)
-		
+		if system == 'monetdblite':
+			os.system('rm -rf ' + os.environ['MONETDBLITE_DBDIR'])
+			dbbench.generate_load_file('monetdb', tpchdir)
+			os.system('R -f scripts/tpch/monetdblite/load.R')
+		if system == 'sqlite': 
+			os.system('rm -rf ' + os.environ['SQLITE_DBDIR'])
+			dbbench.generate_load_file('sqlite', tpchdir)
+			os.system('cat scripts/tpch/sqlite/schema.sql | sqlite3 ' + os.environ['SQLITE_DBDIR'])
+			os.system('cat scripts/tpch/sqlite/load.sql.tmp | sqlite3 ' + os.environ['SQLITE_DBDIR'])
+			os.system('cat scripts/tpch/sqlite/constraints.sql | sqlite3 ' + os.environ['SQLITE_DBDIR'])
+			os.system('cat scripts/tpch/sqlite/analyze.sql | sqlite3 ' + os.environ['SQLITE_DBDIR'])
+
 		os.environ['TPCHDIR'] = tpchdir
 		os.environ['TPCHSF'] = str(sf)
 		#scriptbench.init()

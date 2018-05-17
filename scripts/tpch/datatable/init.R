@@ -3,19 +3,36 @@ library(tpchr)
 
 test_dt_q <- list()
 
-sf <- as.numeric(Sys.getenv('TPCHSF'))
-tbls <- tpchr::dbgen(sf)
+tpchdir <- Sys.getenv('TPCHDIR')
 
-lineitem <- data.table(tbls$lineitem)
-partsupp <- data.table(tbls$partsupp)
-part <- data.table(tbls$part)
-supplier <- data.table(tbls$supplier)
-nation <- data.table(tbls$nation)
-orders <- data.table(tbls$orders)
-customer <- data.table(tbls$customer)
-region <- data.table(tbls$region)
+tbls <- tpchr::dbgen(0.001)
+
+lineitem <- fread(paste0(tpchdir, "/lineitem.tbl"), col.names=names(tbls$lineitem), sep="|", header=F)
+partsupp <- fread(paste0(tpchdir, "/partsupp.tbl"), col.names=names(tbls$partsupp), sep="|", header=F)
+part <- fread(paste0(tpchdir, "/part.tbl"), col.names=names(tbls$part), sep="|", header=F)
+supplier <- fread(paste0(tpchdir, "/supplier.tbl"), col.names=names(tbls$supplier), sep="|", header=F)
+nation <- fread(paste0(tpchdir, "/nation.tbl"), col.names=names(tbls$nation), sep="|", header=F)
+orders <- fread(paste0(tpchdir, "/orders.tbl"), col.names=names(tbls$orders), sep="|", header=F)
+customer <- fread(paste0(tpchdir, "/customer.tbl"), col.names=names(tbls$customer), sep="|", header=F)
+region <- fread(paste0(tpchdir, "/region.tbl"), col.names=names(tbls$region), sep="|", header=F)
+
+orders$o_orderdate <- as.IDate(orders$o_orderdate)
+lineitem$l_shipdate <- as.IDate(lineitem$l_shipdate)
+lineitem$l_commitdate <- as.IDate(lineitem$l_commitdate)
+lineitem$l_receiptdate <- as.IDate(lineitem$l_receiptdate)
+
+setkey(lineitem, "l_orderkey", "l_linenumber")
+setkey(orders, "o_orderkey")
+setkey(customer, "c_custkey")
+setkey(partsupp, "ps_partkey", "ps_suppkey")
+setkey(supplier, "s_suppkey")
+setkey(part, "p_partkey")
+setkey(region, "r_regionkey")
+setkey(nation, "n_nationkey")
 
 rm(tbls)
+
+setDTthreads(1)
 
 test_dt_q[[1]] <- function() {
 	lineitem[

@@ -109,8 +109,30 @@ def write_results(f, system, results):
 			f.write(system + ',' + file + "," + str(i) + ',' + str(timings[i]) + '\n')
 	f.flush()
 
+def acs_benchmark(system, nruns):
+	os.environ['ACS_DATABASE'] = 'test'
+	os.environ['ACS_DATABASE_TYPE'] = system
+	init_scripts = ['scripts/acs/init.R']
+	bench_scripts = ['scripts/acs/test.R']
+	results = scriptbench.run_script(scriptbench.R, init_scripts, bench_scripts, [], nruns, TIMEOUT)
+	return results
+
 benchmark_header = 'System,File,Run,Timing\n'
 
+dirname = 'results-acs' % str(float(sf)).rstrip('0').rstrip('.')
+os.system('mkdir -p "%s"' % dirname)
+for system in ['MonetDBLite', 'SQLite']:
+	results = acs_benchmark(system, nruns)
+	fname = os.path.join(dirname, '%s.csv' % system.lower())
+	with open(fname, 'w+') as f:
+		f.write(benchmark_header)
+		write_results(f, system.lower(), results)
+
+
+exit(1)
+
+
+# Run the individual TPC-H query benchmarks
 for sf in sfs:
 	dirname = 'results-sf%s' % str(float(sf)).rstrip('0').rstrip('.')
 	os.system('mkdir -p "%s"' % dirname)
@@ -126,13 +148,14 @@ for sf in sfs:
 			f.write(benchmark_header)
 			write_results(f, system, results)
 
+# Load/write lineitem benchmark
 for sf in write_sfs:
 	dirname = 'results-sf%s' % str(float(sf)).rstrip('0').rstrip('.')
 	os.system('mkdir -p "%s"' % dirname)
 
 	for dbmodule in database_modules:
 		dbmodule.force_shutdown()
-		
+
 	for system in databases + ['monetdblite', 'sqlite']:
 		fname = os.path.join(dirname, '%s-write.csv' % system)
 		if not os.path.exists(fname):
@@ -146,4 +169,6 @@ for sf in write_sfs:
 			with open(fname, 'w+') as f:
 				f.write(benchmark_header)
 				write_results(f, system, results)
+
+
 

@@ -3,10 +3,29 @@ library(DBI)
 library(survey)
 library(convey)
 library(lodown)
+library(RSQLite)
+library(MonetDBLite)
+library(RMySQL)
+library(RPostgreSQL)
 
-acs_cat <- get_catalog("acs" ,	output_dir = file.path( path.expand( "~" ) , "ACS" ))
+# MonetDB, MonetDBLite, SQLite, MySQL, PostgreSQL
 
-acs_cat <- subset(acs_cat, year == 2011 & time_period == '1-Year')
-acs_cat <- lodown("acs" , acs_cat)
+dbdir <- Sys.getenv('ACS_DATABASE')
+dbtype <- Sys.getenv('ACS_DATABASE_TYPE')
 
-acs_design <- readRDS(file.path( path.expand( "~" ) , "ACS" , "acs2011_1yr.rds" ))
+acs_df <- readRDS(file.path( path.expand( "~" ) , "ACS", "acs2016_1yr.rds"))
+acs_design <-
+    svrepdesign(
+        weight = ~pwgtp ,
+        repweights = 'pwgtp[0-9]+' ,
+        scale = 4 / 80 ,
+        rscales = rep( 1 , 80 ) ,
+        mse = TRUE ,
+        type = 'JK1' ,
+        data = acs_df,
+        dbtype = dbtype,
+        dbname = dbdir
+    )
+
+
+#http://asdfree.com/american-community-survey-acs.html

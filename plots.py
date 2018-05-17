@@ -30,8 +30,6 @@ name_order = [
 	'julia'
 ]
 
-
-
 # plot load and write times
 load_results = []
 write_results = []

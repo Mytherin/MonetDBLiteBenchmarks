@@ -2,6 +2,7 @@
 import mariadb
 import monetdb
 import postgres
+import julia
 
 mariadb.cleanup_install()
 mariadb.delete_database()
@@ -14,4 +15,4 @@ postgres.delete_database()
 mariadb.install()
 monetdb.install()
 postgres.install()
-
+julia.install()

@@ -1,4 +1,6 @@
 
+import os
+
 MAJOR_VERSION="0.6"
 MINOR_VERSION="2"
 REVISION="d386e40c17"

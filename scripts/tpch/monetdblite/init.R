@@ -3,6 +3,8 @@ library(MonetDBLite)
 library(tpchr)
 library(readr)
 
+options("monetdb.sequential" = TRUE)
+
 dbdir <- Sys.getenv('MONETDBLITE_DBDIR')
 con <- dbConnect(MonetDBLite::MonetDBLite(), dbdir)
 

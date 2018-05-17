@@ -12,9 +12,10 @@ database_modules = [postgres, monetdb, mariadb]
 scripts = ['datatable', 'dplyr', 'pandas', 'julia', 'monetdblite', 'sqlite']
 databases = [dbmodule.dbname() for dbmodule in database_modules]
 systems = scripts + databases
-nruns = 3
-sf = 1
+nruns = 10
 TIMEOUT = 300
+query_sfs = [1, 10]
+write_sfs = [1]
 
 queries = queries = range(1, 11)
 
@@ -108,32 +109,41 @@ def write_results(f, system, results):
 			f.write(system + ',' + file + "," + str(i) + ',' + str(timings[i]) + '\n')
 	f.flush()
 
-dirname = 'results-sf%s' % str(float(sf)).rstrip('0').rstrip('.')
-os.system('mkdir -p "%s"' % dirname)
 benchmark_header = 'System,File,Run,Timing\n'
 
-for dbmodule in database_modules:
-	dbmodule.force_shutdown()
+for sf in sfs:
+	dirname = 'results-sf%s' % str(float(sf)).rstrip('0').rstrip('.')
+	os.system('mkdir -p "%s"' % dirname)
 
-for system in systems:
-	fname = os.path.join(dirname, '%s.csv' % system)
-	if os.path.exists(fname): continue
-	results = benchmark_tpch_queries(system, nruns, sf)
-	with open(fname, 'w+') as f:
-		f.write(benchmark_header)
-		write_results(f, system, results)
+	for dbmodule in database_modules:
+		dbmodule.force_shutdown()
 
-for system in databases + ['monetdblite', 'sqlite']:
-	fname = os.path.join(dirname, '%s-write.csv' % system)
-	if not os.path.exists(fname):
-		results = benchmark_tpch_write(system, nruns, sf)
+	for system in systems:
+		fname = os.path.join(dirname, '%s.csv' % system)
+		if os.path.exists(fname): continue
+		results = benchmark_tpch_queries(system, nruns, sf)
 		with open(fname, 'w+') as f:
 			f.write(benchmark_header)
 			write_results(f, system, results)
-	fname = os.path.join(dirname, '%s-load.csv' % system)
-	if not os.path.exists(fname):
-		results = benchmark_tpch_load(system, nruns, sf)
-		with open(fname, 'w+') as f:
-			f.write(benchmark_header)
-			write_results(f, system, results)
+
+for sf in write_sfs:
+	dirname = 'results-sf%s' % str(float(sf)).rstrip('0').rstrip('.')
+	os.system('mkdir -p "%s"' % dirname)
+
+	for dbmodule in database_modules:
+		dbmodule.force_shutdown()
+		
+	for system in databases + ['monetdblite', 'sqlite']:
+		fname = os.path.join(dirname, '%s-write.csv' % system)
+		if not os.path.exists(fname):
+			results = benchmark_tpch_write(system, nruns, sf)
+			with open(fname, 'w+') as f:
+				f.write(benchmark_header)
+				write_results(f, system, results)
+		fname = os.path.join(dirname, '%s-load.csv' % system)
+		if not os.path.exists(fname):
+			results = benchmark_tpch_load(system, nruns, sf)
+			with open(fname, 'w+') as f:
+				f.write(benchmark_header)
+				write_results(f, system, results)
 

@@ -2,7 +2,10 @@
 import os
 import numpy
 
-result_directory = 'results-sf1'
+sf1_directory = 'results-sf1'
+sf10_directory = 'results-sf10'
+
+result_directory = sf1_directory
 
 files = os.listdir(result_directory)
 
@@ -77,71 +80,79 @@ def generate_plot(results, plot_name):
 generate_plot(write_results, 'write.pdf')
 generate_plot(load_results, 'load.pdf')
 
+
 queries = ['q%02d' % x for x in range(1, 11)]
 
+for result_directory in [sf1_directory, sf10_directory]:
+	files = os.listdir(result_directory)
 
-query_time = {}
-for q in queries:
-	query_time[q] = {}
-
-# plot total time for TPC-H
-for fname in files:
-	if '-write.csv' in fname or '-load.csv' in fname: continue
-
-	fname = os.path.join(result_directory, fname)
-	with open(fname, 'r') as f:
-		lines = f.read().split('\n')
-		for line in lines[1:]:
-			if len(line) == 0: continue
-			(System,File,Run,Timing) = line.split(',')
-			for q in queries:
-				if q in File:
-					if System not in query_time[q]:
-						query_time[q][System] = []
-					query_time[q][System].append(float(Timing))
-					break
-
-
-query_results = {}
-total_results = {}
-
-for q in queries:
-	query_results[q] = {}
-	for system in query_time[q].keys():
-		med = numpy.median(query_time[q][system])
-		if med > 0:
-			if system not in total_results:
-				total_results[system] = med
-			else:
-				total_results[system] += med
-		query_results[q][system] = med
-
-
-def get_min_system(result_list):
-	min_val = 1e32
-	min_sys = None
-	for key in result_list.keys():
-		if result_list[key] > 0 and result_list[key] < min_val:
-			min_sys = key
-			min_val = result_list[key]
-	return min_sys
-
-for name in name_order:
-	text = name_map[name] + ' & '
+	query_time = {}
 	for q in queries:
-		result = query_results[q][name]
-		if int(result) == -2:
-			text += '{\color{BrickRed}\\textbf{E}} & '
-		elif int(result) == -1:
-			text += '{\color{BrickRed}\\textbf{T}} & '
-		elif get_min_system(query_results[q]) == name:
-			text += '\\textbf{' + '%.2f' % result + '} & '
+		query_time[q] = {}
+
+	# plot total time for TPC-H
+	for fname in files:
+		if '-write.csv' in fname or '-load.csv' in fname: continue
+
+		fname = os.path.join(result_directory, fname)
+		with open(fname, 'r') as f:
+			lines = f.read().split('\n')
+			for line in lines[1:]:
+				if len(line) == 0: continue
+				(System,File,Run,Timing) = line.split(',')
+				for q in queries:
+					if q in File:
+						if System not in query_time[q]:
+							query_time[q][System] = []
+						query_time[q][System].append(float(Timing))
+						break
+
+
+	query_results = {}
+	total_results = {}
+
+	for q in queries:
+		query_results[q] = {}
+		for system in query_time[q].keys():
+			med = numpy.median(query_time[q][system])
+			if system not in total_results:
+				total_results[system] = 0
+			if med > 0:
+				total_results[system] += med
+			query_results[q][system] = med
+
+
+	def get_min_system(result_list):
+		min_val = 1e32
+		min_sys = None
+		for key in result_list.keys():
+			if result_list[key] > 0 and result_list[key] < min_val:
+				min_sys = key
+				min_val = result_list[key]
+		return min_sys
+
+	print(result_directory)
+	print("")
+
+	for name in name_order:
+		text = name_map[name] + ' & '
+		for q in queries:
+			result = query_results[q][name]
+			if int(result) == -2:
+				text += '{\color{BrickRed}\\textbf{E}} & '
+			elif int(result) == -1:
+				text += '{\color{BrickRed}\\textbf{T}} & '
+			elif get_min_system(query_results[q]) == name:
+				text += '\\textbf{' + '%.2f' % result + '} & '
+			else:
+				text += '%.2f' % result + ' & '
+		if get_min_system(total_results) == name:
+			text += '\\textbf{' + '%.2f' % total_results[name] + '} \\\\'
 		else:
-			text += '%.2f' % result + ' & '
-	if get_min_system(total_results) == name:
-		text += '\\textbf{' + '%.2f' % total_results[name] + '} \\\\'
-	else:
-		text += '%.2f' % total_results[name] + ' \\\\'
-	print(text)
+			text += '%.2f' % total_results[name] + ' \\\\'
+		print(text)
+
+	print("")
+
 
 

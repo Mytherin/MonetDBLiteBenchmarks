@@ -14,7 +14,7 @@ dbdir <- Sys.getenv('ACS_DATABASE')
 dbtype <- Sys.getenv('ACS_DATABASE_TYPE')
 
 acs_df <- readRDS(file.path( path.expand( "~" ) , "ACS", "acs2016_1yr.rds"))
-acs_design <-
+acs_design_stored <-
     svrepdesign(
         weight = ~pwgtp ,
         repweights = 'pwgtp[0-9]+' ,

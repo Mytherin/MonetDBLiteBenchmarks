@@ -119,7 +119,7 @@ def acs_benchmark(system, nruns):
 
 benchmark_header = 'System,File,Run,Timing\n'
 
-dirname = 'results-acs' % str(float(sf)).rstrip('0').rstrip('.')
+dirname = 'results-acs'
 os.system('mkdir -p "%s"' % dirname)
 for system in ['MonetDBLite', 'SQLite']:
 	results = acs_benchmark(system, nruns)

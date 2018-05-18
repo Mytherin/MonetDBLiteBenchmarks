@@ -25,8 +25,8 @@ if (dbtype == "SQLite") {
 } else if (dbtype == "MonetDBLite") {
     con <- dbConnect(MonetDBLite::MonetDBLite(), database)
 } else if (dbtype == "MySQL") {
-    con <- dbConnect(MySQL(), dbname=database, host=host, port=port, user=user, password=password, unix.socket=socket)
-} else if (dbtype == "Postgres") {
+    con <- dbConnect(RMySQL::MySQL(), dbname=database, host=host, port=port, user=user, password=password, unix.socket=socket)
+} else if (dbtype == "PostgreSQL") {
     drv <- dbDriver("PostgreSQL")
     con <- dbConnect(drv, dbname=database, host=host, port=port, user=user, password=password)
 } else if (dbtype == "MonetDB") {

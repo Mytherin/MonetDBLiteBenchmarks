@@ -32,7 +32,9 @@ optimal_configuration = {
 		'port': PORT,
 		'socket': SOCKET,
 		'datadir': PGDATA,
-		'language': os.path.join(CURRENTDIR, '${CMAKEDIR}/sql/share/english'.replace("${CMAKEDIR}", CMAKEDIR))
+		'language': os.path.join(CURRENTDIR, '${CMAKEDIR}/sql/share/english'.replace("${CMAKEDIR}", CMAKEDIR)),
+		'innodb_log_file_size': '512M',
+		'innodb_strict_mode': '0'
 	},
 	'mysqldump': {
 		'quick': None,

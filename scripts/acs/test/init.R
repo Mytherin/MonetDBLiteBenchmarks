@@ -82,7 +82,7 @@ if (dbtype == "SQLite" || dbtype == "MonetDBLite") {
             port=port,
             user=user,
             password=password,
-            socket=socket
+            unix.socket=socket
         )
 }
 acs_design <-

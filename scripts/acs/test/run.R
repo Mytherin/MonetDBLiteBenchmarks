@@ -18,79 +18,79 @@ svytotal( ~ poverty_level , acs_design , na.rm = TRUE )
 svyby( ~ poverty_level , ~ cit , acs_design , svytotal , na.rm = TRUE )
 svytotal( ~ sex , acs_design )
 
-svyby( 
-    ~ poverty_level , 
-    ~ cit , 
-    acs_design , 
-    svyquantile , 
-    0.5 ,
-    ci = TRUE ,
-    keep.var = TRUE ,
-    na.rm = TRUE
-)
+# svyby( 
+#     ~ poverty_level , 
+#     ~ cit , 
+#     acs_design , 
+#     svyquantile , 
+#     0.5 ,
+#     ci = TRUE ,
+#     keep.var = TRUE ,
+#     na.rm = TRUE
+# )
 
-svyratio( 
-    numerator = ~ ssip , 
-    denominator = ~ pincp , 
-    acs_design ,
-    na.rm = TRUE
-)
+# svyratio( 
+#     numerator = ~ ssip , 
+#     denominator = ~ pincp , 
+#     acs_design ,
+#     na.rm = TRUE
+# )
 
-sub_acs_design <- subset( acs_design , agep >= 65 )
+# sub_acs_design <- subset( acs_design , agep >= 65 )
 
-svymean( ~ poverty_level , sub_acs_design , na.rm = TRUE )
+# svymean( ~ poverty_level , sub_acs_design , na.rm = TRUE )
 
-this_result <- svymean( ~ poverty_level , acs_design , na.rm = TRUE )
+# this_result <- svymean( ~ poverty_level , acs_design , na.rm = TRUE )
 
-coef( this_result )
-SE( this_result )
-confint( this_result )
-cv( this_result )
+# coef( this_result )
+# SE( this_result )
+# confint( this_result )
+# cv( this_result )
 
-grouped_result <-
-    svyby( 
-        ~ poverty_level , 
-        ~ cit , 
-        acs_design , 
-        svymean ,
-        na.rm = TRUE 
-    )
+# grouped_result <-
+#     svyby( 
+#         ~ poverty_level , 
+#         ~ cit , 
+#         acs_design , 
+#         svymean ,
+#         na.rm = TRUE 
+#     )
     
-coef( grouped_result )
-SE( grouped_result )
-confint( grouped_result )
-cv( grouped_result )
+# coef( grouped_result )
+# SE( grouped_result )
+# confint( grouped_result )
+# cv( grouped_result )
 
-degf( acs_design )
+# degf( acs_design )
 
-svyvar( ~ poverty_level , acs_design , na.rm = TRUE )
+# svyvar( ~ poverty_level , acs_design , na.rm = TRUE )
 
-# SRS without replacement
-svymean( ~ poverty_level , acs_design , na.rm = TRUE , deff = TRUE )
+# # SRS without replacement
+# svymean( ~ poverty_level , acs_design , na.rm = TRUE , deff = TRUE )
 
-# SRS with replacement
-svymean( ~ poverty_level , acs_design , na.rm = TRUE , deff = "replace" )
+# # SRS with replacement
+# svymean( ~ poverty_level , acs_design , na.rm = TRUE , deff = "replace" )
 
-svyciprop( ~ married , acs_design ,
-    method = "likelihood" )
+# svyciprop( ~ married , acs_design ,
+#     method = "likelihood" )
 
 
-svyby( ~ sex , ~ cit , acs_design , svytotal )
-svyquantile( ~ poverty_level , acs_design , 0.5 , na.rm = TRUE )
+# svyby( ~ sex , ~ cit , acs_design , svytotal )
+# svyquantile( ~ poverty_level , acs_design , 0.5 , na.rm = TRUE )
 
-svyttest( poverty_level ~ married , acs_design )
+# svyttest( poverty_level ~ married , acs_design )
 
-svychisq( 
-    ~ married + sex , 
-    acs_design 
-)
-glm_result <- 
-    svyglm( 
-        poverty_level ~ married + sex , 
-        acs_design 
-    )
+# svychisq( 
+#     ~ married + sex , 
+#     acs_design 
+# )
+# glm_result <- 
+#     svyglm( 
+#         poverty_level ~ married + sex , 
+#         acs_design 
+#     )
 
-summary( glm_result )
+# summary( glm_result )
 
 
 

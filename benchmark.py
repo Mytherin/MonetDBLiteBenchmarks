@@ -127,6 +127,7 @@ def acs_benchmark(system, nruns, scripts):
 		dbbench.setup_database(dbmodule)
 		dbmodule.start_database()
 		coninfo = dbmodule.get_connection_parameters()
+		print(coninfo)
 		for entry in coninfo.keys():
 			os.environ['DBINFO_' + entry.upper()] = coninfo[entry]
 		if system == 'mariadb':
@@ -153,7 +154,7 @@ benchmark_header = 'System,File,Run,Timing\n'
 
 dirname = 'results-acs'
 os.system('mkdir -p "%s"' % dirname)
-for system in databases + ['MonetDBLite', 'SQLite']:
+for system in ['monetdb', 'postgres']:#databases + ['MonetDBLite', 'SQLite']:
 	results = acs_benchmark(system, nruns, ACS_LOAD_SCRIPTS)
 	fname = os.path.join(dirname, '%s-load.csv' % system.lower())
 	with open(fname, 'w+') as f:

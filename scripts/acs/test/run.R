@@ -94,39 +94,39 @@ summary( glm_result )
 
 
 
-library(convey)
-acs_design <- convey_prep( acs_design )
+# library(convey)
+# acs_design <- convey_prep( acs_design )
 
-svygini( ~ hincp , acs_design , na.rm = TRUE )
+# svygini( ~ hincp , acs_design , na.rm = TRUE )
 
 
-pums_estimate <- 
-    c( 285681 , 314701 , 300814 , 334318 , 327896 , 629329 , 599719 , 644212 , 
-    342205 , 300254 , 464893 , 231293 , 87985 )
+# pums_estimate <- 
+#     c( 285681 , 314701 , 300814 , 334318 , 327896 , 629329 , 599719 , 644212 , 
+#     342205 , 300254 , 464893 , 231293 , 87985 )
 
-pums_standard_error <- 
-    c( 2888 , 5168 , 5009 , 3673 , 3521 , 4825 , 4088 , 
-    4398 , 5329 , 5389 , 1938 , 3214 , 2950 )
+# pums_standard_error <- 
+#     c( 2888 , 5168 , 5009 , 3673 , 3521 , 4825 , 4088 , 
+#     4398 , 5329 , 5389 , 1938 , 3214 , 2950 )
 
-pums_margin_of_error <- 
-    c( 4751 , 8501 , 8240 , 6043 , 5792 , 7937 , 6725 , 
-    7234 , 8767 , 8865 , 3188 , 5287 , 4853 )
+# pums_margin_of_error <- 
+#     c( 4751 , 8501 , 8240 , 6043 , 5792 , 7937 , 6725 , 
+#     7234 , 8767 , 8865 , 3188 , 5287 , 4853 )
 
-results <-
-    svytotal( 
-        ~ as.numeric( agep %in% 0:4 ) +
-        as.numeric( agep %in% 5:9 ) +
-        as.numeric( agep %in% 10:14 ) +
-        as.numeric( agep %in% 15:19 ) +
-        as.numeric( agep %in% 20:24 ) +
-        as.numeric( agep %in% 25:34 ) +
-        as.numeric( agep %in% 35:44 ) +
-        as.numeric( agep %in% 45:54 ) +
-        as.numeric( agep %in% 55:59 ) +
-        as.numeric( agep %in% 60:64 ) +
-        as.numeric( agep %in% 65:74 ) +
-        as.numeric( agep %in% 75:84 ) +
-        as.numeric( agep %in% 85:100 ) , 
-        acs_design
-    )
+# results <-
+#     svytotal( 
+#         ~ as.numeric( agep %in% 0:4 ) +
+#         as.numeric( agep %in% 5:9 ) +
+#         as.numeric( agep %in% 10:14 ) +
+#         as.numeric( agep %in% 15:19 ) +
+#         as.numeric( agep %in% 20:24 ) +
+#         as.numeric( agep %in% 25:34 ) +
+#         as.numeric( agep %in% 35:44 ) +
+#         as.numeric( agep %in% 45:54 ) +
+#         as.numeric( agep %in% 55:59 ) +
+#         as.numeric( agep %in% 60:64 ) +
+#         as.numeric( agep %in% 65:74 ) +
+#         as.numeric( agep %in% 75:84 ) +
+#         as.numeric( agep %in% 85:100 ) , 
+#         acs_design
+#     )
 

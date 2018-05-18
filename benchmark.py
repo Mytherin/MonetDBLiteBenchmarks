@@ -154,14 +154,14 @@ benchmark_header = 'System,File,Run,Timing\n'
 
 dirname = 'results-acs'
 os.system('mkdir -p "%s"' % dirname)
-for system in ['monetdb', 'postgres']:#databases + ['MonetDBLite', 'SQLite']:
+for system in ['postgres']:#databases + ['MonetDBLite', 'SQLite']:
 	results = acs_benchmark(system, nruns, ACS_LOAD_SCRIPTS)
 	fname = os.path.join(dirname, '%s-load.csv' % system.lower())
 	with open(fname, 'w+') as f:
 		f.write(benchmark_header)
 		write_results(f, system.lower(), results)
 
-for system in databases + ['MonetDBLite', 'SQLite']:
+for system in ['mariadb', 'postgres', 'MonetDBLite', 'SQLite']:
 	results = acs_benchmark(system, nruns, ACS_TEST_SCRIPTS)
 	fname = os.path.join(dirname, '%s-test.csv' % system.lower())
 	with open(fname, 'w+') as f:

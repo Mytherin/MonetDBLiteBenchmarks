@@ -27,8 +27,23 @@ if (dbtype == "SQLite") {
 } else if (dbtype == "PostgreSQL") {
     drv <- dbDriver("PostgreSQL")
     con <- dbConnect(drv, dbname=database, host=host, port=port, user=user, password=password)
+    
+    assignInNamespace("checkConnection", function (dbconnection, error = TRUE) 
+    {
+        if (is(dbconnection, "DBIConnection") && !is(con, "PostgreSQLConnection")) {
+            if (!DBI::dbIsValid(dbconnection)) 
+                if (error) 
+                    stop("Database connection is closed")
+                else return(FALSE)
+        }
+        else {
+        }
+        invisible(TRUE)
+    }, "survey")
 } else if (dbtype == "MonetDB") {
     con <- dbConnect(MonetDBLite::MonetDB(), dbname=database, host=host, port=port, user=user, password=password)
 }
 
 acs_df <- readRDS(file.path( path.expand( "~" ) , "ACS", "acs2016_1yr.rds"))
+
+

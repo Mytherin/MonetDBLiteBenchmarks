@@ -10,6 +10,6 @@ acs_cat <-
 
 
 # 2016 alabama single-year only. remove ` & stateab == 'al'` for a nationwide table
-acs_cat <- subset( acs_cat , year == 2016 & time_period == '1-Year' & stateab %in% c('al', 'ak', 'az', 'ar', 'ca', 'co', 'ct', 'de', 'fl', 'ga', 'hi', 'id', 'il') )
+acs_cat <- subset( acs_cat , year == 2016 & time_period == '1-Year' & stateab %in% c('al'))#, 'ak', 'az', 'ar', 'ca', 'co', 'ct', 'de', 'fl', 'ga', 'hi', 'id', 'il') )
 # download the microdata to your local computer
 acs_cat <- lodown( "acs" , acs_cat )

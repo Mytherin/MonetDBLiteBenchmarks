@@ -1,4 +1,53 @@
 
+library(DBI)
+library(survey)
+library(convey)
+library(lodown)
+library(RSQLite)
+library(MonetDBLite)
+library(RMySQL)
+library(RPostgreSQL)
+
+# MonetDB, MonetDBLite, SQLite, MySQL, PostgreSQL
+
+dbtype <- Sys.getenv('ACS_DATABASE_TYPE')
+port <- as.numeric(Sys.getenv('DBINFO_PORT'))
+host <- Sys.getenv('DBINFO_HOST')
+database <- Sys.getenv('DBINFO_DATABASE')
+user <- Sys.getenv('DBINFO_USER')
+password <- Sys.getenv('DBINFO_PASSWORD')
+socket <- Sys.getenv('DBINFO_SOCKET')
+
+acs_df <- readRDS(file.path( path.expand( "~" ) , "ACS", "acs2016_1yr.rds"))
+
+if (dbtype == "SQLite") {
+    con <- dbConnect(RSQLite::SQLite(), database)
+} else if (dbtype == "MonetDBLite") {
+    con <- dbConnect(MonetDBLite::MonetDBLite(), database)
+} else if (dbtype == "MySQL") {
+    con <- dbConnect(MySQL(), dbname=database, host=host, port=port, user=user, password=password, unix.socket=socket)
+} else if (dbtype == "Postgres") {
+    drv <- dbDriver("PostgreSQL")
+    con <- dbConnect(drv, dbname=database, host=host, port=port, user=user, password=password)
+} else if (dbtype == "MonetDB") {
+    con <- dbConnect(MonetDBLite::MonetDB(), dbname=database, host=host, port=port, user=user, password=password)
+}
+dbWriteTable(con, "acs_df", acs_df)
+rm(acs_df)
+
+acs_design_stored <-
+    svrepdesign(
+        weight = ~pwgtp ,
+        repweights = 'pwgtp[0-9]+' ,
+        scale = 4 / 80 ,
+        rscales = rep( 1 , 80 ) ,
+        mse = TRUE ,
+        type = 'JK1' ,
+        data = "acs_df",
+        dbtype = dbtype,
+        dbname = database
+    )
+
 acs_design <-
     update(
         
@@ -52,78 +101,3 @@ acs_design <-
         sex = factor( sex , labels = c( 'male' , 'female' ) )
     )
 
-sum( weights( acs_design , "sampling" ) != 0 )
-
-svyby( ~ one , ~ cit , acs_design , unwtd.count )
-svytotal( ~ one , acs_design )
-
-svyby( ~ one , ~ cit , acs_design , svytotal )
-svymean( ~ poverty_level , acs_design , na.rm = TRUE )
-
-svyby( ~ poverty_level , ~ cit , acs_design , svymean , na.rm = TRUE )
-svymean( ~ sex , acs_design )
-
-svyby( ~ sex , ~ cit , acs_design , svymean )
-svytotal( ~ poverty_level , acs_design , na.rm = TRUE )
-
-svyby( ~ poverty_level , ~ cit , acs_design , svytotal , na.rm = TRUE )
-svytotal( ~ sex , acs_design )
-
-# svyby( ~ sex , ~ cit , acs_design , svytotal )
-# svyquantile( ~ poverty_level , acs_design , 0.5 , na.rm = TRUE )
-
-# svyby( 
-#     ~ poverty_level , 
-#     ~ cit , 
-#     acs_design , 
-#     svyquantile , 
-#     0.5 ,
-#     ci = TRUE ,
-#     keep.var = TRUE ,
-#     na.rm = TRUE
-# )
-
-# svyratio( 
-#     numerator = ~ ssip , 
-#     denominator = ~ pincp , 
-#     acs_design ,
-#     na.rm = TRUE
-# )
-
-# sub_acs_design <- subset( acs_design , agep >= 65 )
-
-# svymean( ~ poverty_level , sub_acs_design , na.rm = TRUE )
-
-# this_result <- svymean( ~ poverty_level , acs_design , na.rm = TRUE )
-
-# coef( this_result )
-# SE( this_result )
-# confint( this_result )
-# cv( this_result )
-
-# grouped_result <-
-#     svyby( 
-#         ~ poverty_level , 
-#         ~ cit , 
-#         acs_design , 
-#         svymean ,
-#         na.rm = TRUE 
-#     )
-    
-# coef( grouped_result )
-# SE( grouped_result )
-# confint( grouped_result )
-# cv( grouped_result )
-
-# degf( acs_design )
-
-# svyvar( ~ poverty_level , acs_design , na.rm = TRUE )
-
-# # SRS without replacement
-# svymean( ~ poverty_level , acs_design , na.rm = TRUE , deff = TRUE )
-
-# # SRS with replacement
-# svymean( ~ poverty_level , acs_design , na.rm = TRUE , deff = "replace" )
-
-# svyciprop( ~ married , acs_design ,
-#     method = "likelihood" )

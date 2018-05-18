@@ -109,22 +109,54 @@ def write_results(f, system, results):
 			f.write(system + ',' + file + "," + str(i) + ',' + str(timings[i]) + '\n')
 	f.flush()
 
-def acs_benchmark(system, nruns):
-	os.environ['ACS_DATABASE'] = 'test'
+ACS_LOAD_SCRIPTS = [
+	['scripts/acs/load/init.R'],
+	['scripts/acs/load/run.R'],
+	['scripts/acs/load/final.R']
+]
+
+ACS_TEST_SCRIPTS = [
+	['scripts/acs/test/init.R'],
+	['scripts/acs/test/run.R'],
+	[]
+]
+
+def acs_benchmark(system, nruns, scripts):
 	os.environ['ACS_DATABASE_TYPE'] = system
-	os.system('rm -rf %s' % (os.environ['ACS_DATABASE']))
-	init_scripts = ['scripts/acs/init.R']
-	bench_scripts = ['scripts/acs/test.R']
+	if system.lower() in databases:
+		dbmodule = database_modules[databases.index(system)]
+		dbbench.setup_database(dbmodule)
+		dbmodule.start_database()
+		coninfo = dbmodule.get_connection_parameters()
+		for entry in coninfo.keys():
+			os.environ['DBINFO_' + entry.upper()] = coninfo[entry]
+	else:
+		dbmodule = None
+		os.environ['DBINFO_DATABASE'] = 'acs_test'
+		os.system('rm -rf %s' % (os.environ['DBINFO_DATABASE']))
+
+	init_scripts = scripts[0]
+	bench_scripts = scripts[1]
+	final_scripts = scripts[2]
 	results = scriptbench.run_script(scriptbench.R, init_scripts, bench_scripts, [], nruns, TIMEOUT)
+	if dbmodule != None:
+		dbmodule.stop_database()
 	return results
 
 benchmark_header = 'System,File,Run,Timing\n'
 
 dirname = 'results-acs'
 os.system('mkdir -p "%s"' % dirname)
-for system in ['MonetDBLite', 'SQLite']:
-	results = acs_benchmark(system, nruns)
-	fname = os.path.join(dirname, '%s.csv' % system.lower())
+for system in ['MySQL', 'MonetDB', 'Postgres', 'MonetDBLite', 'SQLite']:
+	results = acs_benchmark(system, nruns, ACS_LOAD_SCRIPTS)
+	fname = os.path.join(dirname, '%s-load.csv' % system.lower())
+	with open(fname, 'w+') as f:
+		f.write(benchmark_header)
+		write_results(f, system.lower(), results)
+
+for system in ['MySQL', 'MonetDB', 'Postgres', 'MonetDBLite', 'SQLite']:
+	results = acs_benchmark(system, nruns, ACS_TEST_SCRIPTS)
+	fname = os.path.join(dirname, '%s-test.csv' % system.lower())
 	with open(fname, 'w+') as f:
 		f.write(benchmark_header)
 		write_results(f, system.lower(), results)

@@ -46,58 +46,37 @@ if (dbtype == "SQLite") {
     con <- dbConnect(MonetDBLite::MonetDB(), dbname=database, host=host, port=port, user=user, password=password)
 }
 dbWriteTable(con, "acs_df", acs_df)
-dbDisconnect(con)
 rm(acs_df)
 
-if (dbtype == "SQLite" || dbtype == "MonetDBLite") {
-    acs_design_stored <-
-        svrepdesign(
-            weight = ~pwgtp ,
-            repweights = 'pwgtp[0-9]+' ,
-            scale = 4 / 80 ,
-            rscales = rep( 1 , 80 ) ,
-            mse = TRUE ,
-            type = 'JK1' ,
-            data = "acs_df",
-            dbtype = dbtype,
-            dbname = database
-        )
-} else if (dbtype == "PostgreSQL" || dbtype == "MonetDB") {
-    acs_design_stored <-
-        svrepdesign(
-            weight = ~pwgtp,
-            repweights = 'pwgtp[0-9]+' ,
-            scale = 4 / 80 ,
-            rscales = rep( 1 , 80 ) ,
-            mse = TRUE ,
-            type = 'JK1' ,
-            data = "acs_df",
-            dbtype = dbtype,
-            dbname = database,
-            host=host,
-            port=port,
-            user=user,
-            password=password
-        )
-} else if (dbtype == "MySQL") {
-    acs_design_stored <-
-        svrepdesign(
-            weight = ~pwgtp ,
-            repweights = 'pwgtp[0-9]+' ,
-            scale = 4 / 80 ,
-            rscales = rep( 1 , 80 ) ,
-            mse = TRUE ,
-            type = 'JK1' ,
-            data = "acs_df",
-            dbtype = dbtype,
-            dbname = database,
-            host=host,
-            port=port,
-            user=user,
-            password=password,
-            unix.socket=socket
-        )
-}
+
+assignInNamespace("dbConnect", function(drv, ...) 
+{
+    con
+}, "DBI")
+
+assignInNamespace("dbDisconnect", function(conn) 
+{
+    invisible(TRUE)
+}, "DBI")
+
+assignInNamespace("dbIsValid", function(conn) 
+{
+    TRUE
+}, "DBI")
+
+acs_design_stored <-
+    svrepdesign(
+        weight = ~pwgtp ,
+        repweights = 'pwgtp[0-9]+' ,
+        scale = 4 / 80 ,
+        rscales = rep( 1 , 80 ) ,
+        mse = TRUE ,
+        type = 'JK1' ,
+        data = "acs_df",
+        dbtype = dbtype,
+        dbname = database
+    )
+    
 acs_design <-
     update(
         

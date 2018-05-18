@@ -5,8 +5,8 @@ library(convey)
 library(lodown)
 library(RSQLite)
 library(MonetDBLite)
-library(RMySQL)
-library(RPostgreSQL)
+# library(RMySQL)
+# library(RPostgreSQL)
 
 # MonetDB, MonetDBLite, SQLite, MySQL, PostgreSQL
 
@@ -14,6 +14,16 @@ dbdir <- Sys.getenv('ACS_DATABASE')
 dbtype <- Sys.getenv('ACS_DATABASE_TYPE')
 
 acs_df <- readRDS(file.path( path.expand( "~" ) , "ACS", "acs2016_1yr.rds"))
+
+if (dbtype == "SQLite") {
+    con <- dbConnect(RSQLite::SQLite(), dbdir)
+} else if (dbtype == "MonetDBLite") {
+    con <- dbConnect(MonetDBLite::MonetDBLite(), dbdir)
+}
+dbWriteTable(con, "acs_df", acs_df)
+dbDisconnect(con)
+rm(acs_df)
+
 acs_design_stored <-
     svrepdesign(
         weight = ~pwgtp ,
@@ -22,7 +32,7 @@ acs_design_stored <-
         rscales = rep( 1 , 80 ) ,
         mse = TRUE ,
         type = 'JK1' ,
-        data = acs_df,
+        data = "acs_df",
         dbtype = dbtype,
         dbname = dbdir
     )

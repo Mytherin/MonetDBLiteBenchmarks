@@ -112,6 +112,7 @@ def write_results(f, system, results):
 def acs_benchmark(system, nruns):
 	os.environ['ACS_DATABASE'] = 'test'
 	os.environ['ACS_DATABASE_TYPE'] = system
+	os.system('rm -rf %s' % (os.environ['ACS_DATABASE']))
 	init_scripts = ['scripts/acs/init.R']
 	bench_scripts = ['scripts/acs/test.R']
 	results = scriptbench.run_script(scriptbench.R, init_scripts, bench_scripts, [], nruns, TIMEOUT)

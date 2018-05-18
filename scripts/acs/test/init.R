@@ -1,12 +1,7 @@
 
-library(DBI)
 library(survey)
 library(convey)
 library(lodown)
-library(RSQLite)
-library(MonetDBLite)
-library(RMySQL)
-library(RPostgreSQL)
 
 # MonetDB, MonetDBLite, SQLite, MySQL, PostgreSQL
 
@@ -21,31 +16,17 @@ socket <- Sys.getenv('DBINFO_SOCKET')
 acs_df <- readRDS(file.path( path.expand( "~" ) , "ACS", "acs2016_1yr.rds"))
 
 if (dbtype == "SQLite") {
-    con <- dbConnect(RSQLite::SQLite(), database)
+    con <- DBI::dbConnect(RSQLite::SQLite(), database)
 } else if (dbtype == "MonetDBLite") {
-    con <- dbConnect(MonetDBLite::MonetDBLite(), database)
+    con <- DBI::dbConnect(MonetDBLite::MonetDBLite(), database)
 } else if (dbtype == "MySQL") {
-    con <- dbConnect(MySQL(), dbname=database, host=host, port=port, user=user, password=password, unix.socket=socket)
+    con <- DBI::dbConnect(RMySQL::MySQL(), dbname=database, host=host, port=port, user=user, password=password, unix.socket=socket)
 } else if (dbtype == "PostgreSQL") {
-    drv <- dbDriver("PostgreSQL")
-    con <- dbConnect(drv, dbname=database, host=host, port=port, user=user, password=password)
-
-    assignInNamespace("checkConnection", function (dbconnection, error = TRUE) 
-    {
-        if (is(dbconnection, "DBIConnection") && !is(con, "PostgreSQLConnection")) {
-            if (!DBI::dbIsValid(dbconnection)) 
-                if (error) 
-                    stop("Database connection is closed")
-                else return(FALSE)
-        }
-        else {
-        }
-        invisible(TRUE)
-    }, "survey")
+    con <- DBI::dbConnect(RPostgreSQL::PostgreSQL(), dbname=database, host=host, port=port, user=user, password=password)
 } else if (dbtype == "MonetDB") {
-    con <- dbConnect(MonetDBLite::MonetDB(), dbname=database, host=host, port=port, user=user, password=password)
+    con <- DBI::dbConnect(MonetDBLite::MonetDB(), dbname=database, host=host, port=port, user=user, password=password)
 }
-dbWriteTable(con, "acs_df", acs_df)
+DBI::dbWriteTable(con, "acs_df", acs_df)
 rm(acs_df)
 
 
@@ -76,7 +57,7 @@ acs_design_stored <-
         dbtype = dbtype,
         dbname = database
     )
-    
+
 acs_design <-
     update(
         

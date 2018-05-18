@@ -1,5 +1,5 @@
 
-dbWriteTable(con, "acs_df", acs_df)
+DBI::dbWriteTable(con, "acs_df", acs_df)
 
 acs_design_stored <-
     svrepdesign(

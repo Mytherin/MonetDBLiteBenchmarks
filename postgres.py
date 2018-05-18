@@ -24,7 +24,7 @@ optimal_configuration = {
 	'default_statistics_target': '10000',
 	'constraint_exclusion': 'on',
 	'wal_buffers': '32MB',
-	'max_connections': '10',
+	'max_connections': '100',
 	'checkpoint_completion_target': '0.9',
 	'temp_buffers': '1GB'
 }

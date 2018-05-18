@@ -33,6 +33,7 @@ if (dbtype == "SQLite") {
     con <- dbConnect(MonetDBLite::MonetDB(), dbname=database, host=host, port=port, user=user, password=password)
 }
 dbWriteTable(con, "acs_df", acs_df)
+dbDisconnect(con)
 rm(acs_df)
 
 if (dbtype == "SQLite" || dbtype == "MonetDBLite") {
@@ -51,7 +52,7 @@ if (dbtype == "SQLite" || dbtype == "MonetDBLite") {
 } else if (dbtype == "PostgreSQL" || dbtype == "MonetDB") {
     acs_design_stored <-
         svrepdesign(
-            weight = ~pwgtp ,
+            weight = ~pwgtp,
             repweights = 'pwgtp[0-9]+' ,
             scale = 4 / 80 ,
             rscales = rep( 1 , 80 ) ,

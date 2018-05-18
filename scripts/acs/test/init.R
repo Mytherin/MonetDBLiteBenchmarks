@@ -45,7 +45,12 @@ acs_design_stored <-
         type = 'JK1' ,
         data = "acs_df",
         dbtype = dbtype,
-        dbname = database
+        dbname = database,
+        host=host,
+        port=port,
+        user=user,
+        password=password,
+        socket=socket
     )
 
 acs_design <-

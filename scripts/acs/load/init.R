@@ -18,8 +18,6 @@ user <- Sys.getenv('DBINFO_USER')
 password <- Sys.getenv('DBINFO_PASSWORD')
 socket <- Sys.getenv('DBINFO_SOCKET')
 
-acs_df <- readRDS(file.path( path.expand( "~" ) , "ACS", "acs2016_1yr.rds"))
-
 if (dbtype == "SQLite") {
     con <- dbConnect(RSQLite::SQLite(), database)
 } else if (dbtype == "MonetDBLite") {
@@ -32,3 +30,5 @@ if (dbtype == "SQLite") {
 } else if (dbtype == "MonetDB") {
     con <- dbConnect(MonetDBLite::MonetDB(), dbname=database, host=host, port=port, user=user, password=password)
 }
+
+acs_df <- readRDS(file.path( path.expand( "~" ) , "ACS", "acs2016_1yr.rds"))

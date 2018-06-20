@@ -1,5 +1,5 @@
 
-packages = c("dplyr", "data.table", "dbplyr", "MonetDBLite", "RPostgreSQL", "RMySQL", "RSQLite", "readr", "convey", "srvyr")
+packages = c("dplyr", "data.table", "dbplyr", "MonetDBLite", "RPostgreSQL", "RMySQL", "RSQLite", "readr", "convey", "srvyr", "feather")
 
 r = getOption("repos") # hard code the cloud repo for CRAN
 r["CRAN"] = "https://cloud.r-project.org"
@@ -10,3 +10,6 @@ install.packages("devtools")
 devtools::install_github("ajdamico/lodown", dependencies = TRUE)
 install.packages(packages)
 devtools::install_github("hannesmuehleisen/tpchr")
+
+source("http://bioconductor.org/biocLite.R")
+biocLite("rhdf5")
